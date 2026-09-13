@@ -1,0 +1,130 @@
+import React, { InputHTMLAttributes } from 'react';
+import { useTheme } from '@emotion/react';
+import Icon from '@components/Icon';
+import Input from '@components/Input';
+import Button from '@components/Button';
+import * as S from '../styles';
+import { useTypeaheadContext } from '../Typeahead.context';
+
+export const MultipleTrigger = () => {
+  const theme = useTheme();
+  const context = useTypeaheadContext();
+  const typeaheadInputAdditionalProps: InputHTMLAttributes<HTMLInputElement> =
+    {};
+  if (
+    !context.selectedItems.length &&
+    !context.inputValue &&
+    !!context.placeholder
+  ) {
+    typeaheadInputAdditionalProps.placeholder = context.placeholder;
+  }
+  return (
+    <React.Fragment>
+      {Object.values(context.optionsWithKey).length > 0 &&
+        context.selectedItems.map((selectedItem, index) => {
+          const currentOption = context.optionsWithKey[selectedItem];
+          const isCustomValue = !currentOption;
+          const optionText = currentOption
+            ? currentOption.children ||
+              currentOption.label ||
+              currentOption.value
+            : String(selectedItem);
+          const avatar = currentOption?.avatar;
+
+          return (
+            <S.TypeaheadItem
+              key={`typeahead-selected-selectedItem-${index}`}
+              onClick={(e) => e.stopPropagation()}
+              isDisabled={context.isDisabled}
+              isCustomValue={isCustomValue}>
+              {avatar && (
+                <S.TypeaheadItemAvatar data-testid="typeahead-item-avatar">
+                  {avatar}
+                </S.TypeaheadItemAvatar>
+              )}
+              <S.TypeaheadItemLabel
+                isDisabled={context.isDisabled}
+                isCustomValue={isCustomValue}>
+                {optionText}
+              </S.TypeaheadItemLabel>
+              <S.TypeaheadItemCross
+                data-testid="typeahead-item-remove"
+                disabled={context.isDisabled}
+                isCustomValue={isCustomValue}
+                endIcon={
+                  <Icon
+                    name="cross"
+                    tooltip="Remove"
+                    size={12}
+                    color={
+                      context.isDisabled
+                        ? theme.colors.grey
+                        : isCustomValue
+                          ? theme.palette.primary.main
+                          : theme.colors.greyDarker
+                    }
+                    css={{
+                      '& path': {
+                        strokeWidth: 1,
+                      },
+                    }}
+                  />
+                }
+                onClick={context.handleRemoveSelectedClick(selectedItem)}
+              />
+            </S.TypeaheadItem>
+          );
+        })}
+      <S.TypeaheadInputsGroupWrapper isOpen={context.isOpen}>
+        {!context.isDisabled && (
+          <Input
+            name={context.inputName}
+            status={'custom'}
+            disabled={context.isDisabled}
+            validationSchema={context.validationSchema}
+            inputProps={{
+              onClick: context.handleInputClick,
+              onKeyDown: context.handleInputKeyDown,
+              onChange: context.handleInputChange,
+              value: context.inputValue,
+              autoComplete: 'off',
+              className: ['typeahead-input', S.TypeaheadInput(theme)].join(' '),
+            }}
+            wrapperClassName={S.TypeaheadInputWrapper}
+            ref={context.inputRef}
+          />
+        )}
+        <input
+          type="text"
+          data-testid="typeahead-input"
+          aria-hidden={context.isOpen}
+          readOnly
+          value={context.firstSuggestion}
+          tabIndex={-1}
+          disabled={context.isDisabled}
+          className={[
+            'typeahead-input',
+            S.TypeaheadInput(theme),
+            S.TypeaheadInputPlaceholder(theme),
+          ].join(' ')}
+          {...typeaheadInputAdditionalProps}
+        />
+      </S.TypeaheadInputsGroupWrapper>
+      {!context.isDisabled && context.selectedItems.length ? (
+        <Button
+          variant="tertiary"
+          data-testid="remove-all-button"
+          endIcon={<Icon name="cross" size={8} tooltip="Remove all" />}
+          css={{
+            padding: '0 10px',
+            marginRight: 4,
+            position: 'absolute',
+            right: 0,
+            zIndex: 10,
+          }}
+          onClick={context.handleClearAll}
+        />
+      ) : null}
+    </React.Fragment>
+  );
+};

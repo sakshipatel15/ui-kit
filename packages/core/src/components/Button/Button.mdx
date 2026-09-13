@@ -1,0 +1,225 @@
+import { Meta, Canvas, Controls, Stories } from '@storybook/addon-docs/blocks';
+import * as ButtonStories from './Button.stories';
+
+<Meta of={ButtonStories} />
+
+# Button
+
+Button triggers an action or event.
+
+## Default Usage
+
+When no `variant` is passed the button defaults to `custom` — a transparent, low-emphasis button (recommended).
+Pass an explicit variant for styled buttons:
+
+```tsx
+import { Button } from '@ssa-ui-kit/core';
+
+function Demo() {
+  return (
+    <>
+      {/* custom — default when no variant is passed (recommended) */}
+      <Button onClick={() => console.log('Clicked!')}>Cancel</Button>
+
+      {/* explicit variant */}
+      <Button variant="primary" size="medium" onClick={() => console.log('Clicked!')}>
+        Save
+      </Button>
+    </>
+  );
+}
+```
+
+## Color System
+
+All variant colors come from `theme.palette`. Each palette entry has three tokens
+that map directly to interactive states:
+
+| Token | State |
+|---|---|
+| `palette.<variant>.main` | Default / resting background |
+| `palette.<variant>.dark` | Hover and active (pressed) |
+| `palette.<variant>.light` | Focus (keyboard navigation) |
+
+Override any entry in a custom theme to restyle a variant without touching
+other components that use `theme.colors`.
+
+```ts
+const customTheme: Theme = {
+  ...mainTheme,
+  palette: {
+    ...mainTheme.palette,
+    primary: {
+      main: 'rgb(0, 102, 255)',
+      dark: 'rgb(0, 51, 204)',   // hover + active
+      light: 'rgb(51, 133, 255)', // focus
+    },
+  },
+};
+```
+
+## Variants
+
+Button supports seven variants for different use cases and visual hierarchy:
+
+### Primary
+
+The primary variant is used for main actions and has high visual emphasis.
+
+```tsx
+<Button variant="primary">Primary Action</Button>
+```
+
+### Secondary
+
+The secondary variant is used for secondary actions with medium emphasis. It uses a light grey background with dark text.
+
+```tsx
+<Button variant="secondary">Secondary Action</Button>
+```
+
+### Custom (default, recommended)
+
+The custom variant is the default and recommended for low-emphasis actions. It has a transparent background and dark text, with no focus outline.
+
+```tsx
+<Button>Cancel</Button>
+{/* same as */}
+<Button variant="custom">Cancel</Button>
+```
+
+### Tertiary (legacy)
+
+Same appearance as custom; kept for compatibility. Prefer `custom` instead.
+
+```tsx
+<Button variant="tertiary">Tertiary Action</Button>
+```
+
+### Error
+
+The error variant is used for destructive or error actions.
+
+```tsx
+<Button variant="error">Delete</Button>
+```
+
+### Warning
+
+The warning variant is used for caution or warning actions.
+
+```tsx
+<Button variant="warning">Warning</Button>
+```
+
+### Success
+
+The success variant is used for success or confirmation actions.
+
+```tsx
+<Button variant="success">Confirm</Button>
+```
+
+## Sizes
+
+Buttons come in three sizes to fit different contexts:
+
+### Small
+
+Compact size perfect for tight layouts or secondary actions.
+
+```tsx
+<Button size="small">Small Button</Button>
+```
+
+### Medium (Default)
+
+Balanced size suitable for most use cases.
+
+```tsx
+<Button size="medium">Medium Button</Button>
+```
+
+### Large
+
+Larger size for prominent actions or when more visual weight is needed.
+
+```tsx
+<Button size="large">Large Button</Button>
+```
+
+## With Icons
+
+Buttons can include icons to enhance meaning and provide visual context:
+
+### Start Icon
+
+Icon positioned before the text.
+
+```tsx
+import { Icon } from '@ssa-ui-kit/core';
+
+<Button variant="primary" startIcon={<Icon name="plus" size={16} />}>
+  Add Item
+</Button>;
+```
+
+### End Icon
+
+Icon positioned after the text.
+
+```tsx
+<Button variant="secondary" endIcon={<Icon name="arrow-right" size={16} />}>
+  Continue
+</Button>
+```
+
+### Icon Only
+
+Button with only an icon, no text.
+
+```tsx
+<Button
+  variant="tertiary"
+  startIcon={<Icon name="settings" size={16} />}
+  aria-label="Settings"
+/>
+```
+
+## Block Button
+
+Use the `block` prop to make the button span the full width of its container:
+
+```tsx
+<Button variant="primary" size="large" block>
+  Full Width Button
+</Button>
+```
+
+## Disabled State
+
+Disable buttons to prevent user interaction:
+
+```tsx
+<Button variant="primary" disabled>
+  Disabled Button
+</Button>
+```
+
+## Loading State
+
+Use the `loading` prop while an action is in flight. The button is disabled,
+reports `aria-busy`, and shows a spinner in place of its label. The label stays
+in the layout, so the button keeps its width and the surrounding row does not
+reflow:
+
+```tsx
+<Button variant="primary" loading={isSaving} onClick={handleSave}>
+  Save
+</Button>
+```
+
+<Canvas />
+<Controls />
+
+<Stories includePrimary={false} />

@@ -1,0 +1,160 @@
+import { Meta, Canvas, Controls, Stories } from '@storybook/addon-docs/blocks';
+import * as PaginationStories from './Pagination.stories';
+
+<Meta of={PaginationStories} />
+
+# Pagination
+
+## Default Usage
+
+The Pagination component provides navigation controls for paginated data with customizable options for page selection and rows per page.
+
+```tsx
+import { Pagination, PaginationContextProvider } from '@ssa-ui-kit/core';
+
+const App = () => {
+  return (
+    <PaginationContextProvider selectedPage={1}>
+      <Pagination pagesCount={10} />
+    </PaginationContextProvider>
+  );
+};
+```
+
+**Note:** The Pagination component requires the `PaginationContextProvider` to manage page state and navigation. By default the provider manages `page`/`perPage` internally (uncontrolled), but it can also be controlled by a parent component — see [Controlled Pagination](#controlled-pagination) below.
+
+## Features
+
+### Basic Pagination
+
+Simple pagination with previous/next arrows and numbered page buttons.
+
+```tsx
+import { Pagination, PaginationContextProvider } from '@ssa-ui-kit/core';
+
+const BasicPagination = () => {
+  return (
+    <PaginationContextProvider selectedPage={3}>
+      <Pagination pagesCount={15} />
+    </PaginationContextProvider>
+  );
+};
+```
+
+### With Rows Per Page
+
+Include a dropdown to control the number of rows displayed per page.
+
+```tsx
+import { Pagination, PaginationContextProvider } from '@ssa-ui-kit/core';
+
+const WithRowsPerPage = () => {
+  return (
+    <PaginationContextProvider selectedPage={1} defaultPerPage={25}>
+      <Pagination
+        pagesCount={20}
+        isRowPerPageVisible={true}
+        rowPerPageProps={{
+          rowsPerPageText: 'Items per page',
+          rowsPerPageList: [
+            { id: 1, value: 10 },
+            { id: 2, value: 25 },
+            { id: 3, value: 50 },
+            { id: 4, value: 100 },
+          ],
+        }}
+      />
+    </PaginationContextProvider>
+  );
+};
+```
+
+### Rows Per Page Dropdown Placement
+
+When the Pagination component sits near the bottom of the page the rows-per-page dropdown can be
+clipped by the viewport edge. Use `rowPerPageProps.dropdownPosition` to control the opening
+direction:
+
+- `'auto'` *(default)* — opens downward; flips upward automatically when there is insufficient
+  space below the toggle in the viewport
+- `'top'` — always opens upward
+- `'bottom'` — always opens downward
+
+```tsx
+{/* Automatic flip — safe for any position on the page */}
+<PaginationContextProvider selectedPage={1}>
+  <Pagination
+    pagesCount={10}
+    isRowPerPageVisible={true}
+    rowPerPageProps={{ dropdownPosition: 'auto' }}
+  />
+</PaginationContextProvider>
+
+{/* Force upward — useful when Pagination is always at the bottom of the page */}
+<PaginationContextProvider selectedPage={1}>
+  <Pagination
+    pagesCount={10}
+    isRowPerPageVisible={true}
+    rowPerPageProps={{ dropdownPosition: 'top' }}
+  />
+</PaginationContextProvider>
+```
+
+### Manual Page Input
+
+Allow users to jump directly to a specific page number.
+
+```tsx
+import { Pagination, PaginationContextProvider } from '@ssa-ui-kit/core';
+
+const ManualPageInput = () => {
+  return (
+    <PaginationContextProvider selectedPage={5}>
+      <Pagination
+        pagesCount={50}
+        isPageSettingVisible={true}
+        pageNumberPlaceholder="Go to page"
+        errorTooltip="Please enter a valid page number"
+        isPageFromCountVisible={true}
+      />
+    </PaginationContextProvider>
+  );
+};
+```
+
+### Controlled Pagination
+
+By default `PaginationContextProvider` manages `page`/`perPage` state internally (uncontrolled).
+Pass `page`/`perPage` alongside `onPageChange`/`onPerPageChange` to have it fully controlled by a
+parent component instead — useful when the current page needs to live outside the component tree
+(e.g. driven by a data-fetching hook, a URL query param, or a sibling component).
+
+```tsx
+import { useState } from 'react';
+import { Pagination, PaginationContextProvider } from '@ssa-ui-kit/core';
+
+const ControlledPagination = () => {
+  const [page, setPage] = useState(1);
+  const [perPage, setPerPage] = useState(10);
+
+  return (
+    <PaginationContextProvider
+      page={page}
+      onPageChange={setPage}
+      perPage={perPage}
+      onPerPageChange={setPerPage}>
+      <Pagination pagesCount={20} isRowPerPageVisible />
+    </PaginationContextProvider>
+  );
+};
+```
+
+**Note:** `page` and `perPage` are controlled independently — pass either one on its own (leaving
+the other uncontrolled) if only one needs to be lifted to the parent. Once a value is passed as
+controlled, keep passing it on every render; switching between controlled and uncontrolled across
+renders logs a warning in development.
+
+<Canvas />
+<Controls />
+
+<Stories includePrimary={false} />

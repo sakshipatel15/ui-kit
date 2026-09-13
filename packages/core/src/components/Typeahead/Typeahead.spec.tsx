@@ -1,0 +1,394 @@
+import React from 'react';
+import { screen, within } from '../../../customTest';
+import userEvent from '@testing-library/user-event';
+import { FormProvider, useForm } from 'react-hook-form';
+import Avatar, { AvatarSizes } from '@components/Avatar';
+import { Typeahead } from './Typeahead';
+import { TypeaheadOption } from '@components';
+import { highlightInputMatch } from './utils';
+import { getStorybookAvatar } from '@storybook-assets/avatars';
+
+type Item = { id: number; value: string; label?: string };
+
+const items: Item[] = [
+  { id: 1, value: 'First' },
+  { id: 2, value: 'Second' },
+  { id: 3, value: 'Third' },
+  { id: 4, value: 'Fourth', label: 'Fourth Label' },
+];
+
+const managerOptions = [
+  {
+    id: '1',
+    name: 'John Doe',
+    avatar: getStorybookAvatar(0),
+  },
+  {
+    id: '2',
+    name: 'Jane Smith',
+    avatar: getStorybookAvatar(1),
+  },
+  {
+    id: '3',
+    name: 'Bob Johnson',
+    avatar: getStorybookAvatar(2),
+  },
+  {
+    id: '4',
+    name: 'Alice Williams',
+    avatar: getStorybookAvatar(3),
+  },
+] as const;
+
+describe('Typeahead Component', () => {
+  let registerSpy: jest.SpyInstance;
+  let setValueSpy: jest.SpyInstance;
+
+  const renderWithForm = (ui: React.ReactElement) => {
+    const Component = () => {
+      const form = useForm({ defaultValues: {} });
+      registerSpy = jest.spyOn(form, 'register');
+      setValueSpy = jest.spyOn(form, 'setValue');
+      return <FormProvider {...form}>{ui}</FormProvider>;
+    };
+
+    return render(<Component />);
+  };
+
+  const setup = (
+    props: Partial<React.ComponentProps<typeof Typeahead>> = {},
+  ) => {
+    const mockOnChange = jest.fn();
+    const mockOnClearAll = jest.fn();
+    const mockOnEmptyChange = jest.fn();
+    const mockOnRemoveSelectedClick = jest.fn();
+    const ui = (
+      <Typeahead
+        name="test-typeahead"
+        onChange={mockOnChange}
+        onClearAll={mockOnClearAll}
+        onEmptyChange={mockOnEmptyChange}
+        onRemoveSelectedClick={mockOnRemoveSelectedClick}
+        renderOption={({ label, input }) => highlightInputMatch(label, input)}
+        {...props}>
+        {props.children ||
+          items.map(({ id, value, label }) => (
+            <TypeaheadOption key={id} value={id} label={label ?? value}>
+              {value}
+            </TypeaheadOption>
+          ))}
+      </Typeahead>
+    );
+    const user = userEvent.setup();
+    const utils = renderWithForm(ui);
+    return {
+      ...utils,
+      user,
+      mockOnChange,
+      mockOnClearAll,
+      mockOnEmptyChange,
+      mockOnRemoveSelectedClick,
+      registerSpy,
+      setValueSpy,
+    };
+  };
+
+  it('renders with no selection initially and does not call onChange', () => {
+    const { mockOnChange } = setup();
+    expect(mockOnChange).not.toHaveBeenCalled();
+
+    const combobox = screen.getByRole('combobox');
+    expect(combobox).toHaveAttribute('aria-expanded', 'false');
+  });
+
+  it('opens dropdown and shows all options', async () => {
+    const { user } = setup();
+    const combobox = screen.getByRole('combobox');
+
+    await user.click(combobox);
+    const listbox = screen.getByRole('listbox');
+    const options = within(listbox).getAllByRole('option');
+    expect(options).toHaveLength(items.length);
+    options.forEach((opt, i) => {
+      expect(opt).toHaveAttribute('aria-selected', 'false');
+      expect(opt).toHaveTextContent(items[i].value);
+    });
+  });
+
+  it('selects and deselects in multiple mode', async () => {
+    const defaultSelected = [1];
+    const { user, mockOnChange } = setup({
+      isMultiple: true,
+      defaultValue: defaultSelected,
+    });
+    const combobox = screen.getByRole('combobox');
+
+    await user.click(combobox);
+    const options = within(screen.getByRole('listbox')).getAllByRole('option');
+
+    // Select second
+    await user.click(options[1]);
+    expect(mockOnChange).toHaveBeenLastCalledWith(2, true);
+
+    // Deselect second
+    await user.click(options[1]);
+    expect(mockOnChange).toHaveBeenLastCalledWith(2, false);
+  });
+
+  it('selects in single mode and closes dropdown', async () => {
+    const { user, mockOnChange } = setup({ isMultiple: false });
+    const combobox = screen.getByRole('combobox');
+
+    await user.click(combobox);
+    const options = within(screen.getByRole('listbox')).getAllByRole('option');
+
+    await user.click(options[2]);
+    expect(mockOnChange).toHaveBeenLastCalledWith(3, true);
+    expect(screen.queryByRole('listbox')).toBeNull();
+  });
+
+  it('clears all selections when clear-all button is clicked', async () => {
+    const defaultSelected = [2, 4];
+    const { user, mockOnClearAll, mockOnEmptyChange } = setup({
+      isMultiple: true,
+      defaultValue: defaultSelected,
+    });
+    const combobox = screen.getByRole('combobox');
+
+    const clearBtn = within(combobox).getByTestId('remove-all-button');
+    await user.click(clearBtn);
+
+    // click outside
+    await user.click(document.body);
+
+    expect(mockOnClearAll).toHaveBeenCalled();
+    expect(mockOnEmptyChange).toHaveBeenCalledWith(true);
+    expect(screen.queryByRole('listbox')).toBeNull();
+  });
+
+  it('displays placeholder when provided', () => {
+    setup({ placeholder: 'Pick one' });
+    expect(screen.getByPlaceholderText('Pick one')).toBeInTheDocument();
+  });
+
+  it('does not open when disabled', async () => {
+    const { user } = setup({ disabled: true });
+    const combobox = screen.getByRole('combobox');
+    await user.click(combobox);
+    expect(screen.queryByRole('listbox')).toBeNull();
+  });
+
+  it('closes dropdown when clicking outside', async () => {
+    const { user } = setup();
+    const combobox = screen.getByRole('combobox');
+    await user.click(combobox);
+    expect(screen.getByRole('listbox')).toBeInTheDocument();
+
+    await user.click(document.body);
+    expect(screen.queryByRole('listbox')).toBeNull();
+  });
+
+  it('auto-selects an exact match when typing', async () => {
+    const { user, mockOnChange, container } = setup({ autoSelect: true });
+    const input = container.querySelector(
+      '.typeahead-input',
+    ) as HTMLInputElement;
+
+    await user.click(input);
+    await user.type(input, 'Second');
+
+    expect(mockOnChange).toHaveBeenLastCalledWith(2, true);
+  });
+
+  it('does not auto-select if input has no exact match', async () => {
+    const { user, mockOnChange, container } = setup({ autoSelect: true });
+    const input = container.querySelector(
+      '.typeahead-input',
+    ) as HTMLInputElement;
+
+    await user.click(input);
+    await user.type(input, 'NonExistingLabel');
+
+    expect(mockOnChange).not.toHaveBeenCalled();
+  });
+
+  it('auto-deselect an exact match when typing', async () => {
+    const { user, mockOnChange, container } = setup({
+      autoSelect: true,
+      isMultiple: true,
+      defaultValue: [2],
+    });
+    const input = container.querySelector(
+      '.typeahead-input',
+    ) as HTMLInputElement;
+
+    await user.click(input);
+    await user.type(input, 'Second');
+
+    expect(mockOnChange).toHaveBeenLastCalledWith(2, false);
+  });
+
+  it('renders custom labels correctly', async () => {
+    const { user } = setup();
+    const combobox = screen.getByRole('combobox');
+
+    await user.click(combobox);
+    const options = within(screen.getByRole('listbox')).getAllByRole('option');
+
+    expect(options[3]).toHaveTextContent('Fourth Label');
+  });
+
+  it('calls onRemoveSelectedClick when removing selected item', async () => {
+    const { user, mockOnRemoveSelectedClick } = setup({
+      isMultiple: true,
+      defaultValue: [1, 2],
+    });
+
+    const removeButtons = screen.getAllByTestId('typeahead-item-remove');
+
+    await user.click(removeButtons[0]);
+
+    expect(mockOnRemoveSelectedClick).toHaveBeenCalledWith(1);
+  });
+
+  it('renders correctly when no children are provided', () => {
+    expect(() =>
+      renderWithForm(<Typeahead name="test-typeahead" onChange={jest.fn()} />),
+    ).not.toThrow();
+  });
+
+  it('calls setValue when item is selected', async () => {
+    const { user, setValueSpy } = setup();
+    const combobox = screen.getByRole('combobox');
+
+    await user.click(combobox);
+    const options = within(screen.getByRole('listbox')).getAllByRole('option');
+    await user.click(options[1]);
+
+    expect(setValueSpy).toHaveBeenCalledWith('test-typeahead', 2);
+  });
+
+  describe('Avatar', () => {
+    it('renders avatar in dropdown option when provided', async () => {
+      const { user } = setup({
+        children: (
+          <TypeaheadOption
+            value={1}
+            label="Test"
+            avatar={<Avatar size={AvatarSizes.small} image="test.jpg" />}>
+            Test
+          </TypeaheadOption>
+        ),
+      });
+      const combobox = screen.getByRole('combobox');
+      await user.click(combobox);
+
+      const listbox = screen.getByRole('listbox');
+      const options = within(listbox).getAllByRole('option');
+      const option = options.find((opt) => opt.textContent?.includes('Test'));
+      expect(option).toBeDefined();
+      expect(option).toHaveTextContent('Test');
+
+      const avatar = within(option!).queryByTestId('typeahead-option-avatar');
+      expect(avatar).toBeInTheDocument();
+    });
+
+    it('renders avatar in selected chip in multiple mode', () => {
+      setup({
+        isMultiple: true,
+        defaultValue: [1],
+        children: (
+          <TypeaheadOption
+            value={1}
+            label="Test"
+            avatar={<Avatar size={AvatarSizes.small} image="test.jpg" />}>
+            Test
+          </TypeaheadOption>
+        ),
+      });
+
+      const combobox = screen.getByRole('combobox');
+      expect(combobox).toHaveTextContent('Test');
+
+      const avatar = within(combobox).queryByTestId('typeahead-item-avatar');
+      expect(avatar).toBeInTheDocument();
+    });
+
+    it('renders avatars for every provided option', async () => {
+      const { user } = setup({
+        isMultiple: true,
+        children: (
+          <>
+            {managerOptions.map(({ id, name, avatar }) => (
+              <TypeaheadOption
+                key={id}
+                value={id}
+                label={name}
+                avatar={<Avatar size={AvatarSizes.small} image={avatar} />}>
+                {name}
+              </TypeaheadOption>
+            ))}
+          </>
+        ),
+      });
+
+      const combobox = screen.getByRole('combobox');
+      await user.click(combobox);
+
+      const avatars = screen.getAllByTestId('typeahead-option-avatar');
+      expect(avatars).toHaveLength(managerOptions.length);
+    });
+  });
+
+  describe('Custom Values', () => {
+    it('allows adding custom values by typing and pressing Enter', async () => {
+      const { user, mockOnChange } = setup({
+        isMultiple: true,
+        allowCustomValues: true,
+      });
+
+      const combobox = screen.getByRole('combobox');
+      await user.click(combobox);
+
+      // Get the actual editable input (the one that's not readonly and has autocomplete)
+      // In multiple mode, there are two textbox elements - one editable, one readonly placeholder
+      const inputs = screen.getAllByRole('textbox');
+      const editableInput = inputs.find(
+        (input) =>
+          input.getAttribute('autocomplete') === 'off' &&
+          !input.hasAttribute('readonly'),
+      );
+
+      if (!editableInput) {
+        throw new Error('Could not find editable input');
+      }
+
+      // Type a custom value
+      await user.type(editableInput, 'custom-value');
+      await user.keyboard('{Enter}');
+
+      // Should call onChange with the custom value
+      expect(mockOnChange).toHaveBeenCalledWith('custom-value', true);
+    });
+
+    it('shows custom values in blue in the dropdown when selected', async () => {
+      const { user } = setup({
+        isMultiple: true,
+        allowCustomValues: true,
+        defaultValue: ['custom-selected'],
+      });
+
+      const combobox = screen.getByRole('combobox');
+      await user.click(combobox);
+
+      // Custom value should appear in the dropdown (use getAllByText and check the option in the listbox)
+      const customOptions = screen.getAllByText('custom-selected');
+      // Should be in both the selected chip and the dropdown option
+      expect(customOptions.length).toBeGreaterThan(0);
+      // Find the one in the dropdown (within the dialog/listbox)
+      const dialog = screen.getByRole('dialog');
+      const customOption = within(dialog).getByText('custom-selected');
+      expect(customOption).toBeInTheDocument();
+    });
+  });
+});

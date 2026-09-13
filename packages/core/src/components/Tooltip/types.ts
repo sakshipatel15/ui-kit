@@ -1,0 +1,298 @@
+import {
+  useInteractions,
+  FloatingArrow,
+  Placement,
+  UseFloatingReturn,
+  OffsetOptions,
+} from '@floating-ui/react';
+import { PointTooltipProps, Point, LineSeries } from '@nivo/line';
+import { MapIconsType } from '@components/Icon/types';
+import { ProgressBarProps } from '@components/ProgressBar/types';
+import { SerializedStyles } from '@emotion/react';
+import { CommonProps } from '@global-types/emotion';
+import { FloatingSurfaceColor } from '@styles/floatingSurface';
+
+/**
+ * Size variant for tooltip content
+ * - `small`: Compact tooltip with minimal padding
+ * - `medium`: Standard tooltip size (default)
+ * - `large`: Larger tooltip for more content
+ */
+export type TooltipSize = 'small' | 'medium' | 'large';
+
+/**
+ * Color scheme of the tooltip surface — mirrors the `Color` dimension of the
+ * design. Shared with Popover, which renders the same surface.
+ * - `grey`: light grey surface with dark text (default)
+ * - `white`: white surface with dark text — bordered by default
+ * - `dark`: dark surface with white text
+ * - `nonOpaque`: semi-transparent white surface with dark text
+ */
+export type TooltipColor = FloatingSurfaceColor;
+
+/**
+ * Props for the Tooltip component
+ *
+ * Root container component for tooltip system using compound component pattern.
+ * Provides context and positioning configuration for TooltipTrigger and TooltipContent.
+ * Built on Floating UI for flexible positioning and interaction modes.
+ *
+ * @example
+ * ```tsx
+ * <Tooltip enableHover enableClick={false} placement="top">
+ *   <TooltipTrigger>
+ *     <Button>Hover me</Button>
+ *   </TooltipTrigger>
+ *   <TooltipContent>This is a tooltip</TooltipContent>
+ * </Tooltip>
+ * ```
+ */
+export interface TooltipProps extends CommonProps {
+  /**
+   * TooltipTrigger and TooltipContent components
+   * Must include both TooltipTrigger and TooltipContent as children
+   */
+  children: React.ReactNode;
+
+  /**
+   * Preferred placement of the tooltip relative to trigger
+   * Floating UI will auto-adjust if space is insufficient
+   */
+  placement?: Placement;
+
+  /**
+   * Enable tooltip on hover interaction.
+   *
+   * Off by default — despite the component's name, the tooltip opens on click
+   * unless this is set. Pass `enableHover enableClick={false}` for the usual
+   * hover-only behaviour; every call site in the kit does.
+   *
+   * @default false
+   */
+  enableHover?: boolean;
+
+  /**
+   * Enable tooltip on click interaction.
+   *
+   * On by default. Set it to `false` alongside `enableHover` when a click on
+   * the trigger has to do something else, such as selecting an item.
+   *
+   * @default true
+   */
+  enableClick?: boolean;
+
+  /**
+   * Enable tooltip to follow client point (mouse position)
+   * Useful for interactive tooltips like charts
+   * @default false
+   */
+  enableClientPoint?: boolean;
+
+  /**
+   * Offset configuration for tooltip positioning
+   * Allows fine-tuning of spacing from trigger element
+   */
+  offsetOptions?: OffsetOptions;
+
+  /**
+   * Allow hovering over tooltip content itself
+   * When true, tooltip stays open when hovering over content
+   * @default false
+   */
+  allowHoverContent?: boolean;
+
+  /**
+   * Delay in milliseconds before tooltip appears on hover
+   * Helps prevent "traffic light" effect when quickly moving through multiple tooltips
+   * @default 0
+   */
+  hoverOpenDelay?: number;
+
+  /**
+   * Delay in milliseconds before tooltip disappears after mouse leaves
+   * Helps prevent tooltip from flickering when moving between trigger and content
+   * @default 0
+   */
+  hoverCloseDelay?: number;
+
+  /**
+   * Size variant of the tooltip content.
+   *
+   * Note that `small` is 8px type — intended for dense chart labels rather
+   * than prose. Use `medium` (12px) or `large` (14px) for readable text.
+   *
+   * @default 'small'
+   */
+  size?: TooltipSize;
+
+  /**
+   * Color scheme of the tooltip content
+   * @default 'grey'
+   */
+  color?: TooltipColor;
+
+  /**
+   * Whether the tooltip surface (and its arrow) is outlined with a 1px border
+   * @default true when `color` is `'white'`, false otherwise
+   */
+  hasBorder?: boolean;
+
+  /**
+   * Whether the tooltip surface casts a drop shadow
+   * @default true
+   */
+  hasShadow?: boolean;
+
+  /**
+   * Whether to display arrow pointing to trigger
+   * @default true
+   */
+  hasArrow?: boolean;
+
+  /**
+   * Additional props for the arrow element
+   */
+  arrowProps?: TooltipArrowProps;
+
+  /**
+   * Controlled open state
+   * When provided, the tooltip is fully controlled and the parent must update
+   * this value from `onOpenChange`
+   */
+  open?: boolean;
+
+  /**
+   * Initial open state for an uncontrolled tooltip
+   * @default false
+   */
+  defaultOpen?: boolean;
+
+  /**
+   * Called whenever the tooltip wants to open or close — hover, click, dismiss
+   * or Escape
+   */
+  onOpenChange?: (open: boolean) => void;
+
+  /**
+   * Initial open state.
+   *
+   * @deprecated Use `defaultOpen` instead. Despite the name, `isOpen` never
+   * controlled the tooltip — it only seeded the initial state, so a changing
+   * value had no effect. Pass `open` together with `onOpenChange` for real
+   * controlled behaviour. Removed in the next major release.
+   */
+  isOpen?: boolean;
+}
+
+export type UseTooltipArgs = Omit<TooltipProps, 'children'>;
+
+type UseInteractions = ReturnType<typeof useInteractions>;
+
+interface RefObject<T> {
+  current: T;
+}
+
+export type UseTooltip = (props?: UseTooltipArgs) => Required<
+  Pick<TooltipProps, 'color' | 'hasBorder' | 'hasShadow'>
+> &
+  Pick<TooltipProps, 'size' | 'hasArrow' | 'arrowProps'> & {
+    arrowRef: RefObject<null>;
+    isOpen: boolean;
+    setIsOpen: React.Dispatch<React.SetStateAction<boolean>>;
+  } & UseFloatingReturn &
+  UseInteractions;
+
+export type TooltipContextType =
+  | (UseFloatingReturn &
+      ReturnType<typeof useInteractions> & {
+        arrowRef: React.Ref<SVGSVGElement>;
+        isOpen: boolean;
+        setIsOpen: React.Dispatch<React.SetStateAction<boolean>>;
+      } & Required<Pick<TooltipProps, 'color' | 'hasBorder' | 'hasShadow'>> &
+      Pick<TooltipProps, 'size' | 'hasArrow' | 'arrowProps'>)
+  | null;
+
+export type TooltipArrowProps = Omit<
+  React.ComponentProps<typeof FloatingArrow>,
+  'context'
+>;
+
+/**
+ * Props for TooltipContent component
+ *
+ * Content container for tooltip. Renders the actual tooltip content that appears
+ * when the trigger is activated. Supports custom styling and is automatically
+ * positioned using Floating UI.
+ */
+export interface TooltipContentProps {
+  /**
+   * Tooltip content to display
+   * Can be text, React nodes, or formatted content
+   */
+  children: React.ReactNode;
+
+  /**
+   * Optional headline rendered in bold above `children`, separated by an 8px
+   * gap. Accepts plain text or any React node.
+   */
+  title?: React.ReactNode;
+
+  /**
+   * Maximum width of the tooltip surface. Without it the tooltip is sized to
+   * its content and never wraps — set it for multi-line content such as a
+   * `title` with a paragraph of text.
+   */
+  maxWidth?: number | string;
+
+  /**
+   * Custom CSS class name
+   */
+  className?: string;
+
+  /**
+   * Inline styles for the tooltip content
+   */
+  style?: React.CSSProperties;
+}
+
+export interface TooltipContentSizes {
+  small: SerializedStyles;
+  medium: SerializedStyles;
+  large: SerializedStyles;
+}
+
+/**
+ * Props for TooltipTrigger component
+ *
+ * Trigger element that activates the tooltip. Must be a single React element
+ * (component or DOM element) that will receive the tooltip trigger props.
+ */
+export interface TooltipTriggerProps {
+  /**
+   * Single React element to use as trigger
+   * Can be any element (Button, Icon, div, etc.)
+   * Must be a valid React element (not fragment or array)
+   */
+  children: React.ReactNode;
+
+  /**
+   * Custom CSS class name
+   */
+  className?: string;
+}
+
+export type SimpleChartTooltipProps<Series extends LineSeries> =
+  PointTooltipProps<Series> &
+    Pick<TooltipProps, 'size'> & {
+      renderValue?: (data: Point<Series>['data']) => React.ReactNode;
+    };
+
+export interface ProgressChartTooltipProps {
+  caption: string;
+  value: number;
+  valueFormatted: string;
+  iconName?: keyof MapIconsType;
+  barProps?: Partial<Omit<ProgressBarProps, 'currentValue'>>;
+}
+
+export type UseTooltipContext = () => NonNullable<TooltipContextType>;

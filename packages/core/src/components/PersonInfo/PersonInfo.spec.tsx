@@ -1,0 +1,286 @@
+import React from 'react';
+import userEvent from '@testing-library/user-event';
+import { screen, waitFor } from '../../../customTest';
+import { PersonInfo } from '@components';
+import Badge from '@components/Badge';
+import { getStorybookAvatar } from '@storybook-assets/avatars';
+
+describe('PersonInfo', () => {
+  it('Renders with title', () => {
+    render(<PersonInfo title="Test Title" />);
+
+    expect(screen.getByText('Test Title')).toBeInTheDocument();
+  });
+
+  it('Renders with value', () => {
+    render(<PersonInfo title="Title" value="Test Value" />);
+
+    expect(screen.getByText('Test Value')).toBeInTheDocument();
+  });
+
+  it('Renders with icon as string', () => {
+    const { container } = render(<PersonInfo title="Title" icon="user" />);
+
+    expect(container.querySelector('svg')).toBeInTheDocument();
+  });
+
+  it('Renders with icon as ReactNode', () => {
+    const CustomIcon = () => <div data-testid="custom-icon">Custom</div>;
+    render(<PersonInfo title="Title" icon={<CustomIcon />} />);
+
+    expect(screen.getByTestId('custom-icon')).toBeInTheDocument();
+  });
+
+  it('Renders with avatar and value', () => {
+    const { container } = render(
+      <PersonInfo
+        title="Title"
+        avatar={getStorybookAvatar(0)}
+        value="John Doe"
+      />,
+    );
+
+    expect(screen.getByText('John Doe')).toBeInTheDocument();
+
+    const avatar = container.querySelector('[size="24"]');
+    expect(avatar).toBeInTheDocument();
+  });
+
+  it('Renders counter based on tooltip users length', () => {
+    render(
+      <PersonInfo
+        title="Title"
+        value="Value"
+        counterTooltip={{
+          users: [
+            {
+              id: 'manager-1',
+              name: 'Manager Alpha',
+              avatar: getStorybookAvatar(1),
+              link: 'https://example.com/managers/alpha',
+            },
+            {
+              id: 'manager-2',
+              name: 'Manager Beta',
+              avatar: getStorybookAvatar(2),
+              link: 'https://example.com/managers/beta',
+            },
+          ],
+        }}
+      />,
+    );
+
+    expect(screen.getByText('+2')).toBeInTheDocument();
+  });
+
+  it('does not render counter without tooltip users', () => {
+    render(<PersonInfo title="Title" value="Value" />);
+
+    expect(screen.queryByTestId('person-info-counter')).not.toBeInTheDocument();
+  });
+
+  it('shows tooltip with other users when hovering counter', async () => {
+    const user = userEvent.setup();
+
+    render(
+      <PersonInfo
+        title="Title"
+        value="John Doe"
+        counterTooltip={{
+          users: [
+            {
+              id: 'manager-1',
+              name: 'Manager Alpha',
+              avatar: getStorybookAvatar(1),
+              link: 'https://example.com/managers/alpha',
+            },
+            {
+              id: 'manager-2',
+              name: 'Manager Beta',
+              avatar: getStorybookAvatar(2),
+            },
+          ],
+        }}
+      />,
+    );
+
+    const counter = screen.getByText('+2');
+    await user.hover(counter);
+
+    const managerAlphaLink = await waitFor(() =>
+      screen.getByRole('link', { name: 'Manager Alpha' }),
+    );
+
+    expect(managerAlphaLink).toHaveAttribute(
+      'href',
+      'https://example.com/managers/alpha',
+    );
+    const managerBeta = screen.getByText('Manager Beta');
+    expect(managerBeta.closest('a')).toBeNull();
+  });
+
+  it('renders value as link when link is provided', () => {
+    render(
+      <PersonInfo
+        title="Title"
+        value="John Doe"
+        link="https://example.com"
+        openLinkInNewTab
+      />,
+    );
+
+    const linkElement = screen.getByRole('link', { name: 'John Doe' });
+    expect(linkElement).toHaveAttribute('href', 'https://example.com');
+    expect(linkElement).toHaveAttribute('target', '_blank');
+  });
+
+  it('renders avatar block as link when avatar and link are provided', () => {
+    render(
+      <PersonInfo
+        title="Title"
+        avatar={getStorybookAvatar(0)}
+        value="John Doe"
+        link="https://example.com"
+      />,
+    );
+
+    const linkElement = screen.getByRole('link', { name: 'John Doe' });
+    expect(linkElement).toHaveAttribute('href', 'https://example.com');
+  });
+
+  it('Renders with badges as ReactNode', () => {
+    render(
+      <PersonInfo title="Title" badges={<Badge size="small">Badge</Badge>} />,
+    );
+
+    expect(screen.getByText('Badge')).toBeInTheDocument();
+  });
+
+  it('Renders with badges as string array', () => {
+    render(<PersonInfo title="Title" badges={['badge 1', 'badge 2']} />);
+
+    expect(screen.getByText('badge 1')).toBeInTheDocument();
+    expect(screen.getByText('badge 2')).toBeInTheDocument();
+  });
+
+  it('Renders with badges as ReactNode array', () => {
+    render(
+      <PersonInfo
+        title="Title"
+        badges={[
+          <Badge key="1" size="small">
+            Badge 1
+          </Badge>,
+          <Badge key="2" size="small">
+            Badge 2
+          </Badge>,
+        ]}
+      />,
+    );
+
+    expect(screen.getByText('Badge 1')).toBeInTheDocument();
+    expect(screen.getByText('Badge 2')).toBeInTheDocument();
+  });
+
+  it('Renders with attributes as string array', () => {
+    render(<PersonInfo title="Title" attributes={['Attr 1', 'Attr 2']} />);
+
+    expect(screen.getByText('Attr 1')).toBeInTheDocument();
+    expect(screen.getByText('Attr 2')).toBeInTheDocument();
+  });
+
+  it('Renders with attributes as ReactNode array', () => {
+    render(
+      <PersonInfo
+        title="Title"
+        attributes={[
+          <span key="1" data-testid="attr-1">
+            Custom Attr 1
+          </span>,
+          <span key="2" data-testid="attr-2">
+            Custom Attr 2
+          </span>,
+        ]}
+      />,
+    );
+
+    expect(screen.getByTestId('attr-1')).toBeInTheDocument();
+    expect(screen.getByTestId('attr-2')).toBeInTheDocument();
+  });
+
+  it('Renders with description', () => {
+    render(<PersonInfo title="Title" description="Test description text" />);
+
+    expect(screen.getByText('Test description text')).toBeInTheDocument();
+  });
+
+  it('Renders without icon when icon is not provided', () => {
+    const { container } = render(<PersonInfo title="Title" />);
+
+    const iconWrapper = container.querySelector('[class*="IconWrapper"]');
+    expect(iconWrapper).not.toBeInTheDocument();
+  });
+
+  it('Renders with all props', () => {
+    render(
+      <PersonInfo
+        title="Full Title"
+        icon="user"
+        value="John Doe"
+        avatar={getStorybookAvatar(0)}
+        counterTooltip={{
+          users: [
+            {
+              id: 'manager-1',
+              name: 'Manager Alpha',
+              avatar: getStorybookAvatar(1),
+              link: 'https://example.com/managers/alpha',
+            },
+          ],
+        }}
+        badges={['badge 1', 'badge 2']}
+        attributes={['Attribute 1', 'Attribute 2']}
+        description="Full description"
+      />,
+    );
+
+    expect(screen.getByText('Full Title')).toBeInTheDocument();
+    expect(screen.getByText('John Doe')).toBeInTheDocument();
+    expect(screen.getByText('+1')).toBeInTheDocument();
+    expect(screen.getByText('badge 1')).toBeInTheDocument();
+    expect(screen.getByText('badge 2')).toBeInTheDocument();
+    expect(screen.getByText('Attribute 1')).toBeInTheDocument();
+    expect(screen.getByText('Attribute 2')).toBeInTheDocument();
+    expect(screen.getByText('Full description')).toBeInTheDocument();
+  });
+
+  it('Renders with ref', () => {
+    const ref = React.createRef<HTMLDivElement>();
+    render(<PersonInfo ref={ref} title="Title" />);
+
+    expect(ref.current).toBeInTheDocument();
+    expect(ref.current?.textContent).toContain('Title');
+  });
+
+  it('Renders with className', () => {
+    const { container } = render(
+      <PersonInfo title="Title" className="custom-class" />,
+    );
+
+    expect(container.firstChild).toHaveClass('custom-class');
+  });
+
+  it('Applies default badge colors to string badges', () => {
+    render(
+      <PersonInfo title="Title" badges={['badge 1', 'badge 2', 'badge 3']} />,
+    );
+
+    const badge1 = screen.getByText('badge 1');
+    const badge2 = screen.getByText('badge 2');
+    const badge3 = screen.getByText('badge 3');
+
+    expect(badge1).toBeInTheDocument();
+    expect(badge2).toBeInTheDocument();
+    expect(badge3).toBeInTheDocument();
+  });
+});

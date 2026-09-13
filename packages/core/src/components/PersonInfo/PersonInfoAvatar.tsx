@@ -1,0 +1,49 @@
+/**
+ * PersonInfoAvatar - Avatar + value row for PersonInfo.
+ * Renders optional Avatar (image URL) and PersonInfoValue. When link is set, wraps in anchor
+ * using helpers.getLinkAttributes; link hover uses theme.colors.blue (avatarWrapperLinkStyles).
+ * Uses styles.avatarName when avatar present, styles.value when only value. Used only by PersonInfo.
+ */
+import React from 'react';
+import Avatar, { AvatarSizes } from '@components/Avatar';
+import * as S from './styles';
+import { PersonInfoAvatarProps } from './types';
+import { PersonInfoValue } from './PersonInfoValue';
+import { getLinkAttributes } from './helpers';
+
+export const PersonInfoAvatar: React.FC<PersonInfoAvatarProps> = ({
+  avatar,
+  value,
+  styles,
+  link,
+  openLinkInNewTab,
+  avatarBorder = false,
+}) => {
+  const hasAvatar = Boolean(avatar);
+  const hasValue = Boolean(value);
+  const isLink = Boolean(link);
+  const linkAttributes = getLinkAttributes(link, openLinkInNewTab);
+
+  if (!hasAvatar && !hasValue) return null;
+
+  const valueNode = hasValue ? (
+    <PersonInfoValue
+      value={value as string}
+      css={hasAvatar ? styles?.avatarName : styles?.value}
+      linkAttributes={!hasAvatar ? linkAttributes : undefined}
+    />
+  ) : null;
+
+  if (!hasAvatar) {
+    return valueNode;
+  }
+
+  return (
+    <S.AvatarWrapper
+      css={isLink ? S.avatarWrapperLinkStyles : undefined}
+      {...linkAttributes}>
+      <Avatar size={AvatarSizes.small} image={avatar!} border={avatarBorder} />
+      {valueNode}
+    </S.AvatarWrapper>
+  );
+};

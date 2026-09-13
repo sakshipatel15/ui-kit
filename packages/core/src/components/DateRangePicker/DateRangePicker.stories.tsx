@@ -1,0 +1,352 @@
+import { useEffect, useState } from 'react';
+import { DateTime } from 'luxon';
+import { useForm, FieldValues, FormProvider } from 'react-hook-form';
+import type { Meta, StoryObj } from '@storybook/react-webpack5';
+import Form from '@components/Form';
+import FormGroup from '@components/FormGroup';
+import { DateRangePicker } from '@components';
+import { DateRangePickerProps, DateRangePreset } from './types';
+import {
+  DEFAULT_DATE_RANGE_PRESETS,
+  currentMonthPreset,
+  lastMonthPreset,
+  todayPreset,
+} from './utils/presets';
+
+export default {
+  title: 'Components/DateRangePicker',
+  component: DateRangePicker,
+  argTypes: {
+    defaultValue: {
+      type: 'string',
+    },
+    rangePickerType: {
+      options: ['days', 'months', 'years'],
+      control: { type: 'radio' },
+      defaultValue: 'days',
+    },
+  },
+  // required due to https://github.com/storybookjs/storybook/issues/17025
+  parameters: {
+    controls: {
+      include: [
+        'rangePickerType',
+        'disabled',
+        'label',
+        'helperText',
+        'allowReverseSelection',
+        'showClearButton',
+      ],
+    },
+  },
+  decorators: [
+    (Story, context) => {
+      const useFormResult = useForm<FieldValues>({
+        defaultValues: {},
+      });
+      return (
+        <FormProvider {...useFormResult}>
+          <Form
+            onSubmit={useFormResult.handleSubmit((data) => {
+              console.log('event: onSubmit', data);
+            })}
+            css={{
+              width: 350,
+            }}>
+            <FormGroup>
+              {Story({
+                args: {
+                  ...context.args,
+                },
+              })}
+            </FormGroup>
+          </Form>
+        </FormProvider>
+      );
+    },
+  ],
+} as Meta<typeof DateRangePicker>;
+
+const commonArgs: Partial<DateRangePickerProps> = {
+  label: 'Field',
+  rangePickerType: 'days',
+  onChange: (dates) => {
+    console.log('event: onChange', dates);
+  },
+  onOpen: () => {
+    console.log('event: onOpen');
+  },
+  onClose: () => {
+    console.log('event: onClose');
+  },
+  onError: (date, error) => {
+    console.log('event: onError', date, error);
+  },
+  onMonthChange: (date) => {
+    console.log('event: onMonthChange', date);
+  },
+  onYearChange: (date) => {
+    console.log('event: onYearChange', date);
+  },
+  onBlur: (event) => {
+    console.log('event: onBlur', event);
+  },
+};
+
+export const Default: StoryObj<typeof DateRangePicker> = (
+  args: DateRangePickerProps,
+) => {
+  return <DateRangePicker {...args} />;
+};
+Default.args = {
+  ...commonArgs,
+  name: 'field1',
+  messages: {
+    description: 'custom description',
+  },
+};
+
+export const MonthlyView: StoryObj<typeof DateRangePicker> = (
+  args: DateRangePickerProps,
+) => {
+  return <DateRangePicker {...args} />;
+};
+MonthlyView.args = {
+  ...commonArgs,
+  name: 'field8',
+  rangePickerType: 'months',
+  defaultValue: ['04/2025', '06/2025'],
+  messages: {
+    description: 'custom description',
+  },
+};
+
+export const YearView: StoryObj<typeof DateRangePicker> = (
+  args: DateRangePickerProps,
+) => {
+  return <DateRangePicker {...args} />;
+};
+YearView.args = {
+  ...commonArgs,
+  name: 'field9',
+  rangePickerType: 'years',
+  defaultValue: ['2020', '2025'],
+  messages: {
+    description: 'custom description',
+  },
+};
+
+export const CustomError: StoryObj<typeof DateRangePicker> = (
+  args: DateRangePickerProps,
+) => {
+  return <DateRangePicker {...args} />;
+};
+CustomError.args = {
+  ...commonArgs,
+  name: 'field7',
+  status: 'error',
+  messages: {
+    error: 'custom error message',
+  },
+};
+
+export const CustomSuccess: StoryObj<typeof DateRangePicker> = (
+  args: DateRangePickerProps,
+) => {
+  return <DateRangePicker {...args} />;
+};
+CustomSuccess.args = {
+  ...commonArgs,
+  name: 'field8',
+  status: 'success',
+  messages: {
+    success: 'custom success message',
+  },
+};
+
+export const EuropeanFormat: StoryObj<typeof DateRangePicker> = (
+  args: DateRangePickerProps,
+) => {
+  return <DateRangePicker {...args} />;
+};
+EuropeanFormat.args = {
+  ...commonArgs,
+  name: 'field2',
+  format: 'dd/mm/yyyy',
+};
+
+export const Disabled: StoryObj<typeof DateRangePicker> = (
+  args: DateRangePickerProps,
+) => {
+  return <DateRangePicker {...args} />;
+};
+Disabled.args = {
+  ...commonArgs,
+  name: 'field3',
+  disabled: true,
+};
+
+export const WithSpecificDateRange: StoryObj<typeof DateRangePicker> = (
+  args: DateRangePickerProps,
+) => {
+  return <DateRangePicker {...args} />;
+};
+WithSpecificDateRange.args = {
+  ...commonArgs,
+  name: 'field4',
+  dateMin: DateTime.now().set({ day: 10 }).toFormat('MM/dd/yyyy'),
+  dateMax: DateTime.now()
+    .plus({ years: 5 })
+    .set({ month: 5, day: 11 })
+    .toFormat('MM/dd/yyyy'),
+};
+
+export const WithDefaultValue: StoryObj<typeof DateRangePicker> = (
+  args: DateRangePickerProps,
+) => {
+  return <DateRangePicker {...args} />;
+};
+WithDefaultValue.args = {
+  ...commonArgs,
+  name: 'field5',
+  defaultValue: ['02/10/2025', '02/15/2025'],
+};
+
+export const WithClearButton: StoryObj<typeof DateRangePicker> = (
+  args: DateRangePickerProps,
+) => {
+  return <DateRangePicker {...args} />;
+};
+WithClearButton.args = {
+  ...commonArgs,
+  name: 'fieldClear',
+  showClearButton: true,
+  defaultValue: ['02/10/2025', '02/15/2025'],
+};
+
+export const WithClearButtonEmptyStart: StoryObj<typeof DateRangePicker> = (
+  args: DateRangePickerProps,
+) => {
+  return <DateRangePicker {...args} />;
+};
+WithClearButtonEmptyStart.args = {
+  ...commonArgs,
+  name: 'fieldClearEmpty',
+  showClearButton: true,
+  messages: {
+    description:
+      'Starts empty — × appears once a range is picked, and clears it',
+  },
+};
+
+export const WithExternalValue: StoryObj<typeof DateRangePicker> = (
+  args: DateRangePickerProps,
+) => {
+  const dates: Array<DateRangePickerProps['value']> = [
+    ['01/15/2025', '01/25/2025'],
+    ['02/10/2025', '02/28/2025'],
+    ['11/05/2030', '11/30/2030'],
+  ];
+  const [index, setIndex] = useState(0);
+  const [value, setValue] = useState(dates[index]);
+  setTimeout(() => {
+    let newIndex = index + 1;
+    if (newIndex === dates.length) {
+      newIndex = 0;
+    }
+    setIndex(newIndex);
+  }, 3000);
+  useEffect(() => {
+    setValue(dates[index]);
+  }, [index]);
+  return <DateRangePicker {...args} value={value} />;
+};
+WithExternalValue.args = {
+  ...commonArgs,
+  name: 'field6',
+};
+
+export const WithReverseSelection: StoryObj<typeof DateRangePicker> = (
+  args: DateRangePickerProps,
+) => {
+  return <DateRangePicker {...args} />;
+};
+WithReverseSelection.args = {
+  ...commonArgs,
+  name: 'field10',
+  allowReverseSelection: true,
+  messages: {
+    description:
+      'Reverse selection enabled: If you select a later date first, then an earlier date, the dates will be auto-swapped so the earlier date becomes the start date.',
+  },
+};
+
+export const WithPresentOption: StoryObj<typeof DateRangePicker> = (
+  args: DateRangePickerProps,
+) => {
+  return <DateRangePicker {...args} />;
+};
+WithPresentOption.args = {
+  ...commonArgs,
+  name: 'field11',
+  showPresentOption: true,
+  defaultValue: ['01/15/2025', null],
+  messages: {
+    description:
+      'Click "Present" button to set end date as ongoing (no end date). The end date will show "Present" and onChange will receive null for the end date.',
+  },
+};
+
+export const WithPresets: StoryObj<typeof DateRangePicker> = (
+  args: DateRangePickerProps,
+) => {
+  return <DateRangePicker {...args} />;
+};
+WithPresets.args = {
+  ...commonArgs,
+  name: 'field12',
+  presets: DEFAULT_DATE_RANGE_PRESETS,
+  messages: {
+    description:
+      'Click a preset to fill the range. The calendar stays open, so the dates can still be adjusted by hand afterwards.',
+  },
+};
+
+const lastNDaysPreset = (days: number): DateRangePreset => ({
+  label: `Last ${days} days`,
+  dateRange: () => {
+    const today = DateTime.now();
+    return [
+      today
+        .minus({ days: days - 1 })
+        .startOf('day')
+        .toJSDate(),
+      today.startOf('day').toJSDate(),
+    ];
+  },
+});
+
+export const WithCustomPresets: StoryObj<typeof DateRangePicker> = (
+  args: DateRangePickerProps,
+) => {
+  return <DateRangePicker {...args} />;
+};
+WithCustomPresets.args = {
+  ...commonArgs,
+  name: 'field13',
+  presets: [
+    todayPreset,
+    lastNDaysPreset(7),
+    lastNDaysPreset(30),
+    currentMonthPreset,
+    lastMonthPreset,
+    {
+      label: 'Year 2025',
+      dateRange: [new Date(2025, 0, 1), new Date(2025, 11, 31)],
+    },
+  ],
+  messages: {
+    description:
+      'Built-in presets composed with custom ones — relative ranges use a function, the fixed one a plain tuple.',
+  },
+};

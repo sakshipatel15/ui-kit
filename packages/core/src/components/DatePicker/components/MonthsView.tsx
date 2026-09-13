@@ -1,0 +1,116 @@
+import { MouseEventHandler } from 'react';
+import { DateTime } from 'luxon';
+import Wrapper from '@components/Wrapper';
+import * as S from '../styles';
+import { useDatePickerContext } from '../useDatePickerContext';
+import { MONTHS, PICKER_TYPE, CALENDAR_TYPE } from '../constants';
+
+export const MonthsView = () => {
+  const {
+    dateTime,
+    calendarViewDateTime,
+    dateMinDT,
+    dateMaxDT,
+    lastChangedDate,
+    highlightDates,
+    setCalendarType,
+    setDateTime,
+    setCalendarViewDateTime,
+    onMonthChange,
+    pickerType,
+    setIsOpen,
+    safeOnChange,
+  } = useDatePickerContext();
+
+  const isHighlightEnabled = !!highlightDates?.enabled;
+  const { otherDate } = highlightDates || {};
+  const otherDateDT = otherDate && DateTime.fromJSDate(otherDate);
+
+  const handleMonthSelect: MouseEventHandler<HTMLDivElement> = (event) => {
+    const { target } = event;
+    if ((target as HTMLDivElement).getAttribute('aria-disabled') === 'true') {
+      event.stopPropagation();
+      event.preventDefault();
+      return;
+    }
+    const selectedMonth = (target as HTMLDivElement).innerHTML;
+    const monthNumber = MONTHS.findIndex((month) => month === selectedMonth);
+    const newDate = calendarViewDateTime?.set({ month: monthNumber + 1 });
+
+    if (!newDate) return;
+
+    const isMonthTypeSelected = pickerType === PICKER_TYPE.MONTHS;
+
+    if (isMonthTypeSelected) {
+      const startDate = newDate.startOf('month');
+
+      setCalendarViewDateTime(startDate);
+      setDateTime(startDate);
+      safeOnChange?.(startDate);
+      onMonthChange?.(startDate.toJSDate());
+
+      setIsOpen(false);
+    } else {
+      setCalendarViewDateTime(newDate);
+      setCalendarType(CALENDAR_TYPE.DAYS);
+    }
+  };
+
+  return (
+    <Wrapper
+      css={{ flexWrap: 'wrap', paddingTop: 10 }}
+      onClick={handleMonthSelect}>
+      {MONTHS.map((month, index) => {
+        const currentMonthDT = DateTime.fromObject({
+          year: calendarViewDateTime?.year,
+          month: index + 1,
+          day: 1,
+        });
+        const isMinMonthReached = dateMinDT
+          ? currentMonthDT.month < dateMinDT.month &&
+            currentMonthDT.year === dateMinDT.year
+          : false;
+        const isMaxMonthReached = dateMaxDT
+          ? currentMonthDT.month > dateMaxDT.month &&
+            currentMonthDT.year === dateMaxDT.year
+          : false;
+        const isAriaDisabled = isMinMonthReached || isMaxMonthReached;
+
+        const isCalendarFirstDateSelected =
+          currentMonthDT.toFormat('yyyy-MM') === dateTime?.toFormat('yyyy-MM');
+        const isCalendarSecondDateSelected =
+          currentMonthDT.toFormat('yyyy-MM') ===
+          otherDateDT?.toFormat('yyyy-MM');
+        const isCalendarDateSelected =
+          isCalendarFirstDateSelected || isCalendarSecondDateSelected;
+
+        let isHighlightDate = false;
+
+        if (isHighlightEnabled && lastChangedDate && otherDateDT && dateTime) {
+          isHighlightDate =
+            highlightDates.mode === 'dateTo'
+              ? otherDateDT < currentMonthDT && currentMonthDT < dateTime
+              : dateTime < currentMonthDT && currentMonthDT < otherDateDT;
+        }
+        const rangeEdge = S.getRangeEdge({
+          isFirstSelected: isCalendarFirstDateSelected,
+          isSecondSelected: isCalendarSecondDateSelected,
+          isRangeActive: isHighlightEnabled && !!otherDateDT && !!dateTime,
+          mode: highlightDates?.mode,
+        });
+
+        return (
+          <S.MonthsViewCell
+            key={month}
+            isCalendarDateSelected={isCalendarDateSelected}
+            aria-disabled={isAriaDisabled}
+            aria-label={`${month}, ${calendarViewDateTime?.year}`}
+            rangeEdge={rangeEdge}
+            isHighlighted={isHighlightDate}>
+            {month}
+          </S.MonthsViewCell>
+        );
+      })}
+    </Wrapper>
+  );
+};

@@ -1,0 +1,169 @@
+import React, { BaseSyntheticEvent } from 'react';
+import styled from '@emotion/styled';
+
+import Checkbox from '@components/Checkbox';
+import { useMultipleDropdownContext } from '@components/MultipleDropdown/MultipleDropdown.context';
+import DropdownOption from '@components/DropdownOption';
+import { resolveAriaProp, resolveDisabled } from '@utils/deprecation';
+
+import { checkboxStyles } from '@components/Checkbox/styles';
+import { DropdownItemsListProps } from './types';
+
+const DropdownOptionsBase = styled.ul<{
+  tabindex?: string;
+  maxHeight?: number;
+}>`
+  position: absolute;
+  width: 100%;
+
+  list-style: none;
+
+  margin: 4px 0 0;
+  padding: 0;
+
+  background: #fff;
+  border-radius: 8px;
+
+  max-height: ${({ maxHeight = 200 }) => maxHeight}px;
+  overflow: hidden auto;
+
+  z-index: 1;
+
+  filter: ${({ theme }) =>
+    `drop-shadow(-4px 4px 14px ${theme.colors.greyDarker14})`};
+  backdrop-filter: ${({ theme }) =>
+    `drop-shadow(-4px 4px 14px ${theme.colors.greyDarker14})`};
+
+  ${({ theme }) => checkboxStyles.primaryInput(theme)}
+`;
+
+const DropdownOptionButton = styled.div<{
+  checked?: boolean;
+  isDisabled?: boolean;
+}>(({ theme, isDisabled }) => ({
+  display: 'block',
+  cursor: isDisabled ? 'default' : 'pointer',
+  font: 'inherit',
+  fontSize: '0.813rem',
+  outline: 'inherit',
+  textAlign: 'left',
+
+  width: '100%',
+  padding: 0,
+  margin: 0,
+
+  background: 'none',
+  color: 'inherit',
+  border: 'none',
+
+  whiteSpace: 'nowrap',
+  textOverflow: 'ellipsis',
+  overflow: 'hidden',
+
+  userSelect: 'none',
+
+  '& label': {
+    margin: '0 16px 0 0',
+  },
+
+  '&:has(:scope > label > input:checked)': {
+    fontWeight: '800',
+  },
+
+  [`&:hover input:not(:checked, :indeterminate) + div::before`]: {
+    borderColor: theme.palette.primary.main,
+  },
+}));
+
+const noItemsMsg = { id: Number.NaN, value: 'No items' };
+
+const MultipleDropdownOptions = ({
+  'aria-labelledby': ariaLabelledbyNative,
+  ariaLabelledby,
+  id,
+  children,
+}: DropdownItemsListProps) => {
+  const { onChange, allItems, isMultiple, maxHeight } =
+    useMultipleDropdownContext();
+  const labelledby = resolveAriaProp(
+    'MultipleDropdownOptions',
+    'aria-labelledby',
+    ariaLabelledbyNative,
+    ariaLabelledby,
+  );
+
+  const toggleItem = (value: string | number, isDisabled: boolean) => {
+    if (!isDisabled) {
+      const item = allItems[value];
+      onChange(item);
+    }
+  };
+
+  const childrenArray = React.Children.toArray(children).filter(Boolean);
+
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  const options = (childrenArray as React.ReactElement<any>[]).map((child) => {
+    const element = allItems[child.props.value];
+    const isActive = Boolean(element?.isSelected);
+    const isDisabled = Boolean(
+      resolveDisabled(
+        'DropdownOption',
+        element?.disabled as unknown as boolean | undefined,
+        element?.isDisabled as unknown as boolean | undefined,
+      ),
+    );
+
+    return React.cloneElement(
+      child,
+      {
+        ...child.props,
+        isActive,
+        isMultiple,
+        'aria-selected': isActive,
+        onClick: (event: BaseSyntheticEvent) => {
+          event.preventDefault();
+          toggleItem(child.props.value, isDisabled);
+        },
+      },
+      <DropdownOptionButton
+        checked={isActive}
+        isDisabled={isDisabled}
+        role="button">
+        {isMultiple && (
+          <Checkbox
+            checked={isActive}
+            disabled={isDisabled}
+            css={{
+              margin: 0,
+            }}
+            color="primary"
+          />
+        )}
+        {child.props.children || child.props.label || child.props.value}
+      </DropdownOptionButton>,
+    );
+  });
+
+  if (options.length === 0) {
+    options.push(
+      <DropdownOption key={noItemsMsg.id} value={''} aria-selected={false}>
+        <DropdownOptionButton as="button">
+          {noItemsMsg.value}
+        </DropdownOptionButton>
+      </DropdownOption>,
+    );
+  }
+
+  return (
+    <DropdownOptionsBase
+      role="listbox"
+      tabindex="-1"
+      id={id}
+      aria-labelledby={labelledby}
+      maxHeight={maxHeight}>
+      {options}
+    </DropdownOptionsBase>
+  );
+};
+
+export default MultipleDropdownOptions;

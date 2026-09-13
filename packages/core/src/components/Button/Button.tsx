@@ -1,0 +1,196 @@
+import { forwardRef } from 'react';
+import { useTheme } from '@emotion/react';
+
+import Wrapper from '@components/Wrapper/Wrapper';
+import { resolveDisabled } from '@utils/deprecation';
+
+import { ButtonBase } from './ButtonBase';
+import {
+  WhiteButtonText,
+  GreyButtonText,
+  DisabledButtonText,
+} from './ButtonText';
+import { ButtonProps, ButtonVariants } from './types';
+import {
+  sizeStyles,
+  variantStyles,
+  buttonBlock,
+  iconWrapperLeft,
+  iconWrapperRight,
+  loadingContent,
+  loadingSpinner,
+} from './styles';
+
+const WHITE_TEXT_VARIANTS = new Set<keyof ButtonVariants>([
+  'primary',
+  'error',
+  'warning',
+  'success',
+]);
+
+/**
+ * Button - Interactive button component for user actions.
+ *
+ * Variant colors are driven entirely by `theme.palette` for solid variants — each
+ * reads `palette.<variant>.main` (default), `palette.<variant>.dark` (hover/active),
+ * `palette.<variant>.light` (focus). Override any palette entry in a custom theme
+ * to restyle a variant without affecting other components.
+ *
+ * ### Variants (default: `custom`)
+ * - `custom`    — transparent, dark text; recommended for low-emphasis actions (default)
+ * - `primary`   — blue, high emphasis, white text
+ * - `secondary` — grey, medium emphasis, dark text
+ * - `tertiary`  — legacy; same as custom; prefer `custom` instead
+ * - `error`     — red, destructive actions, white text
+ * - `warning`   — orange, caution actions, white text
+ * - `success`   — green, confirmation actions, white text
+ *
+ * @category Form Controls
+ * @subcategory Action
+ *
+ * @example
+ * ```tsx
+ * // No variant passed → custom (transparent, recommended)
+ * <Button text="Cancel" onClick={handleCancel} />
+ * ```
+ *
+ * @example
+ * ```tsx
+ * <Button variant="primary" size="medium" onClick={handleSave}>
+ *   Save
+ * </Button>
+ * ```
+ *
+ * @example
+ * ```tsx
+ * // Full-width block button
+ * <Button variant="primary" size="large" block type="submit">
+ *   Submit Form
+ * </Button>
+ * ```
+ *
+ * @example
+ * ```tsx
+ * // Loading: spinner replaces the label, button is disabled, width is unchanged
+ * <Button variant="primary" text="Save" loading={isSaving} onClick={handleSave} />
+ * ```
+ *
+ * @example
+ * ```tsx
+ * // Button with custom children
+ * <Button variant="secondary" onClick={handleAction}>
+ *   <span>Custom Content</span>
+ *   <Icon name="arrow-right" />
+ * </Button>
+ * ```
+ *
+ * @see {@link ButtonGroup} - For grouped button layouts
+ * @see {@link Icon} - For button icons
+ *
+ * @accessibility
+ * Supports full ARIA attributes including:
+ * - aria-label, aria-labelledby for accessible labels
+ * - aria-disabled for disabled state
+ * - aria-pressed for toggle buttons
+ * - Keyboard navigation (Enter/Space to activate)
+ * - Focus management
+ */
+export const Button = forwardRef<HTMLButtonElement, ButtonProps>(
+  function Button(
+    {
+      block = false,
+      size = 'small',
+      text,
+      startIcon,
+      endIcon,
+      startIconClassName,
+      endIconClassName,
+      variant = 'custom',
+      type = 'button',
+      className,
+      disabled,
+      isDisabled,
+      loading = false,
+      onClick,
+      children,
+      ...ariaProps
+    },
+    ref,
+  ) {
+    if (!text && !startIcon && !endIcon && !children) {
+      throw new Error('Button must have either text or icon or children');
+    }
+
+    const theme = useTheme();
+    const isButtonDisabled =
+      resolveDisabled('Button', disabled, isDisabled) || loading;
+
+    const appliedVariantStyle = (
+      variantStyles[variant] ?? variantStyles.custom
+    )(theme);
+
+    const resolveTextNode = () => {
+      if (!text) return null;
+      if (isButtonDisabled)
+        return <DisabledButtonText text={text} size={size} />;
+      if (WHITE_TEXT_VARIANTS.has(variant)) {
+        return <WhiteButtonText text={text} size={size} />;
+      }
+      return <GreyButtonText text={text} size={size} />;
+    };
+
+    const content = (
+      <>
+        {startIcon ? (
+          <span
+            style={!text ? { margin: 0 } : undefined}
+            css={iconWrapperRight}
+            className={startIconClassName}>
+            {startIcon}
+          </span>
+        ) : null}
+        {children ?? resolveTextNode()}
+        {endIcon ? (
+          <span
+            style={!text ? { margin: 0 } : undefined}
+            css={iconWrapperLeft}
+            className={endIconClassName}>
+            {endIcon}
+          </span>
+        ) : null}
+      </>
+    );
+
+    const btn = (
+      <ButtonBase
+        ref={ref}
+        css={[sizeStyles[size], appliedVariantStyle]}
+        type={type}
+        disabled={isButtonDisabled}
+        aria-busy={loading || undefined}
+        className={className}
+        onClick={onClick}
+        {...ariaProps}>
+        {loading ? (
+          <>
+            <span
+              css={loadingSpinner}
+              data-testid="button-spinner"
+              aria-hidden="true"
+            />
+            {/* Kept in the layout so the button does not change width. */}
+            <span css={loadingContent} aria-hidden="true">
+              {content}
+            </span>
+          </>
+        ) : (
+          content
+        )}
+      </ButtonBase>
+    );
+
+    return block ? <Wrapper css={buttonBlock}>{btn}</Wrapper> : btn;
+  },
+);
+
+export default Button;

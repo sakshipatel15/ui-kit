@@ -1,0 +1,56 @@
+{
+  "name": "@ssa-ui-kit/hooks",
+  "version": "3.21.3",
+  "main": "dist/index.js",
+  "types": "dist/index.d.ts",
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "import": "./dist/index.mjs",
+      "require": "./dist/index.js",
+      "default": "./dist/index.js"
+    }
+  },
+  "private": false,
+  "sideEffects": false,
+  "author": "SSA Group",
+  "license": "MIT",
+  "description": "React hooks",
+  "keywords": [
+    "react",
+    "SSA UI Kit",
+    "hooks"
+  ],
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/ssagroup/ui-kit.git",
+    "directory": "packages/hooks"
+  },
+  "files": [
+    "dist"
+  ],
+  "scripts": {
+    "clean": "node ../../scripts/clean.mjs",
+    "build": "node ../../scripts/clean.mjs && webpack --mode=production --node-env=production && node ../../scripts/verify-esm-bundle.mjs && tsc --build && resolve-tspaths",
+    "ts-show-config": "tsc --showConfig -p ./tsconfig.json",
+    "ts-check": "tsc -p ./tsconfig.json"
+  },
+  "dependencies": {
+    "@ssa-ui-kit/utils": "workspace:^",
+    "usehooks-ts": "3.1.1"
+  },
+  "peerDependencies": {
+    "react": ">=19"
+  },
+  "peerDependenciesMeta": {
+    "@types/react": {
+      "optional": true
+    }
+  },
+  "browserslist": [
+    ">0.1%",
+    "not dead",
+    "not op_mini all"
+  ],
+  "module": "dist/index.mjs"
+}

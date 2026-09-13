@@ -1,0 +1,104 @@
+{
+  "name": "@ssa-ui-kit/core",
+  "version": "3.21.3",
+  "main": "dist/index.js",
+  "module": "dist/index.mjs",
+  "types": "dist/index.d.ts",
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "import": "./dist/index.mjs",
+      "require": "./dist/index.js",
+      "default": "./dist/index.js"
+    }
+  },
+  "private": false,
+  "sideEffects": false,
+  "author": "SSA Group",
+  "license": "MIT",
+  "description": "SSA UI Kit",
+  "keywords": [
+    "react",
+    "SSA UI Kit",
+    "ui"
+  ],
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/ssagroup/ui-kit.git",
+    "directory": "packages/core"
+  },
+  "files": [
+    "dist"
+  ],
+  "dependencies": {
+    "@floating-ui/react": "0.27.4",
+    "@rc-component/color-picker": "3.0.1",
+    "@react-input/mask": "2.0.4",
+    "@react-input/number-format": "2.0.3",
+    "@ssa-ui-kit/hooks": "workspace:^",
+    "@ssa-ui-kit/utils": "workspace:^",
+    "dotenv": "16.0.3",
+    "loose-envify": "1.4.0",
+    "luxon": "3.5.0",
+    "plotly.js": "3.0.0",
+    "react-plotly.js": "2.6.0"
+  },
+  "devDependencies": {
+    "@emotion/css": "11.13.5",
+    "@emotion/jest": "11.14.2",
+    "@emotion/react": "11.14.0",
+    "@emotion/styled": "11.14.0",
+    "@nivo/radar": "0.99.0",
+    "@nivo/core": "0.99.0",
+    "@nivo/line": "0.99.0",
+    "@nivo/pie": "0.99.0",
+    "@nivo/treemap": "0.99.0",
+    "@playwright/test": "1.57.0",
+    "@rjsf/core": "5.24.8",
+    "@rjsf/utils": "5.24.8",
+    "@rjsf/validator-ajv8": "5.24.8",
+    "@types/luxon": "3.4.2",
+    "@types/react-plotly.js": "2.6.3"
+  },
+  "scripts": {
+    "clean": "node ../../scripts/clean.mjs",
+    "test": "jest -i --no-cache",
+    "build": "node ../../scripts/clean.mjs && webpack --mode=production --node-env=production && node ../../scripts/verify-esm-bundle.mjs && tsc --build ./tsconfig.build.json && resolve-tspaths -p ./tsconfig.build.json && node ../../scripts/ai-source-map.mjs .",
+    "build:watch": "webpack --mode=production --node-env=production --watch && tsc --build ./tsconfig.build.json && resolve-tspaths -p ./tsconfig.build.json",
+    "sb:dev": "env storybook dev -p 6006",
+    "sb:build": "env storybook build",
+    "test:e2e": "pnpm exec playwright test --project=chromium",
+    "test:e2e:ui": "pnpm exec playwright test --project=chromium --ui",
+    "test:e2e:debug": "pnpm exec playwright test --project=chromium --debug",
+    "ts-show-config-build": "tsc --showConfig -p ./tsconfig.build.json",
+    "ts-show-config": "tsc --showConfig -p ./tsconfig.json",
+    "ts-check": "tsc --noEmit -p ./tsconfig.json",
+    "ts-check-build": "tsc -p ./tsconfig.build.json"
+  },
+  "browserslist": [
+    ">0.1%",
+    "not dead",
+    "not op_mini all"
+  ],
+  "peerDependencies": {
+    "@emotion/css": "^11.13.5",
+    "@emotion/react": "^11.14.0",
+    "@emotion/styled": "^11.14.0",
+    "@nivo/radar": "^0.99.0",
+    "@nivo/core": "^0.99.0",
+    "@nivo/line": "^0.99.0",
+    "@nivo/pie": "^0.99.0",
+    "@nivo/treemap": "^0.99.0",
+    "@rjsf/core": "^5.0.0",
+    "@rjsf/utils": "^5.0.0",
+    "react": ">=19",
+    "react-dom": ">=19",
+    "react-hook-form": "^7.46.1",
+    "react-router-dom": "6.x || 7.x"
+  },
+  "peerDependenciesMeta": {
+    "@types/react": {
+      "optional": true
+    }
+  }
+}

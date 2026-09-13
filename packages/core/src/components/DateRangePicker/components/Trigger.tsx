@@ -1,0 +1,129 @@
+import { useRef } from 'react';
+import { useTheme } from '@emotion/react';
+import { useClickOutside } from '@ssa-ui-kit/hooks';
+import * as C from '@components';
+import { ClearButton } from '@components/DatePicker/components/ClearButton';
+import { TriggerInput } from './TriggerInput';
+import { TriggerStatusArea } from './TriggerStatusArea';
+import { useDateRangePickerContext } from '../useDateRangePickerContext';
+import * as S from '../styles';
+
+export const Trigger = () => {
+  const {
+    nameFrom,
+    nameTo,
+    label,
+    lastFocusedElement,
+    disabled,
+    status,
+    isOpen,
+    showCalendarIcon,
+    showClearButton,
+    showStatusArea,
+    isDirty,
+    resetToDefault,
+    classNames,
+    setIsOpen,
+    handleToggleOpen,
+  } = useDateRangePickerContext();
+
+  const theme = useTheme();
+  const wrapperRef = useRef<HTMLDivElement>(null);
+
+  useClickOutside(wrapperRef, (event) => {
+    const { target } = event;
+    const closestPopover = (target as HTMLElement).closest('div.popover');
+    if (isOpen && !closestPopover) {
+      setIsOpen(false);
+    }
+  });
+
+  return (
+    <C.Field.Root
+      status={status}
+      disabled={disabled}
+      data-testid="daterangepicker"
+      className={classNames?.trigger?.root}>
+      {label && (
+        <C.Field.Label
+          htmlFor={lastFocusedElement === 'from' ? nameFrom : nameTo}
+          className={classNames?.label}>
+          {label}
+        </C.Field.Label>
+      )}
+      <C.Field.Control>
+        <S.TriggerWrapper
+          ref={wrapperRef}
+          className={classNames?.trigger?.controlsWrapper}>
+          <TriggerInput
+            datepickerType="from"
+            className={classNames?.trigger?.inputFrom}
+          />
+          <C.Icon
+            name="carrot-right"
+            size={16}
+            color={disabled ? theme.colors.grey : theme.colors.greyDarker}
+            className={classNames?.trigger?.arrowIcon}
+            onClick={() => {
+              if (isOpen) {
+                setIsOpen(false);
+              }
+            }}
+            css={{
+              margin: '0 3px',
+              cursor: 'pointer',
+            }}
+          />
+          <TriggerInput
+            datepickerType="to"
+            className={classNames?.trigger?.inputTo}
+          />
+          {showClearButton && isDirty && !disabled && (
+            <ClearButton
+              dataTestId="daterangepicker-clear-button"
+              onClick={() => resetToDefault?.()}
+              ariaLabel="Clear dates"
+              className={classNames?.trigger?.clearButton}
+              css={{
+                margin: '0 0 0 10px',
+                height: 'auto',
+                cursor: 'pointer',
+              }}
+            />
+          )}
+          {showCalendarIcon && (
+            <C.PopoverTrigger asChild>
+              <C.Button
+                endIcon={
+                  <C.Icon
+                    name="calendar"
+                    size={16}
+                    color={
+                      disabled ? theme.colors.grey : theme.colors.greyDarker
+                    }
+                  />
+                }
+                data-testid={'daterangepicker-button'}
+                onClick={handleToggleOpen}
+                variant="tertiary"
+                aria-label="Calendar"
+                disabled={disabled}
+                className={classNames?.trigger?.calendarIcon}
+                css={{
+                  padding: 0,
+                  margin: '0 0 0 10px',
+                  height: 'auto',
+                  cursor: disabled ? 'default' : 'pointer',
+                  '&:focus::before': {
+                    display: 'none',
+                  },
+                }}
+              />
+            </C.PopoverTrigger>
+          )}
+        </S.TriggerWrapper>
+      </C.Field.Control>
+      {showStatusArea && <TriggerStatusArea />}
+    </C.Field.Root>
+  );
+};

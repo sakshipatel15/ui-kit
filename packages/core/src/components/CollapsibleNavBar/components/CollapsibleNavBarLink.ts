@@ -1,0 +1,92 @@
+import { NavLink } from 'react-router-dom';
+import styled from '@emotion/styled';
+import { CollapsibleNavBarExtendedProps } from '../types';
+
+export const CollapsibleNavBarLink = styled(NavLink)<{
+  navbartheme: CollapsibleNavBarExtendedProps['theme'];
+  ['data-customicon']?: boolean;
+}>`
+  cursor: pointer;
+  text-decoration: none;
+  display: inline-flex;
+  align-items: center;
+  gap: 20px;
+  overflow: visible;
+  color: ${({ theme, navbartheme }) =>
+    navbartheme === 'default' ? theme.colors.white : theme.colors.greyDarker};
+
+  svg {
+    backdrop-filter: blur(0);
+  }
+
+  & > span {
+    font-weight: ${({ navbartheme }) => navbartheme === 'light' && 500};
+    color: ${({ theme, navbartheme }) =>
+      navbartheme === 'default' ? theme.colors.white : theme.colors.greyDarker};
+
+    ${({ theme }) => theme.mediaQueries.md} {
+      display: none;
+    }
+  }
+
+  div > svg {
+    & path {
+      fill: ${({ theme, navbartheme, ...rest }) =>
+        navbartheme === 'light' &&
+        !rest['data-customicon'] &&
+        theme.colors.greyDropdownFocused};
+    }
+    & circle {
+      stroke: ${({ theme, navbartheme, ...rest }) =>
+        navbartheme === 'light' &&
+        !rest['data-customicon'] &&
+        theme.colors.greyDropdownFocused};
+    }
+  }
+  &.active,
+  &:not(.active):hover {
+    backdrop-filter: blur(0);
+    color: ${({ theme, navbartheme }) =>
+      navbartheme === 'default'
+        ? theme.colors.white80
+        : theme.colors.greyDarker80};
+
+    & > span {
+      font-weight: 900;
+      color: ${({ theme, navbartheme }) =>
+        navbartheme === 'default'
+          ? theme.colors.white80
+          : theme.colors.greyDarker80};
+    }
+
+    div > svg {
+      filter: ${({ theme }) =>
+        `drop-shadow(-4px 4px 14px ${theme.colors.white})`};
+      & path {
+        fill: ${({ theme, navbartheme, ...rest }) =>
+          !rest['data-customicon'] &&
+          (navbartheme === 'default'
+            ? theme.colors.white
+            : theme.colors.greyDarker)};
+      }
+      & circle {
+        stroke: ${({ theme, navbartheme, ...rest }) =>
+          !rest['data-customicon'] &&
+          (navbartheme === 'default'
+            ? theme.colors.white
+            : theme.colors.greyDarker)};
+      }
+    }
+  }
+  &.active {
+    cursor: default;
+    font-weight: 900;
+
+    div > svg {
+      filter: ${({ navbartheme, theme }) =>
+        navbartheme === 'default'
+          ? `drop-shadow(-4px 4px 14px ${theme.colors.white})`
+          : `drop-shadow(-4px 4px 14px ${theme.colors.greyDropdownFocused})`};
+    }
+  }
+`;

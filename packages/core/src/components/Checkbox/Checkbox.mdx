@@ -1,0 +1,185 @@
+import { Meta, Canvas, Controls, Stories } from '@storybook/addon-docs/blocks';
+import * as CheckboxStories from './Checkbox.stories';
+
+<Meta of={CheckboxStories} />
+
+# Checkbox
+
+Checkbox is a form control that allows users to select one or more options from a set. It supports various states including checked, unchecked, indeterminate, and disabled.
+
+## Default Usage
+
+The basic Checkbox component can be used with or without a label:
+
+```tsx
+import { Checkbox } from '@ssa-ui-kit/core';
+
+function BasicCheckbox() {
+  const handleChange = (isChecked: boolean) => {
+    console.log('Checkbox state:', isChecked);
+  };
+
+  return (
+    <Checkbox
+      id="basic-checkbox"
+      text="Accept terms and conditions"
+      onChange={handleChange}
+    />
+  );
+}
+```
+
+## Features
+
+### Initial State
+
+Set the initial checked state of the checkbox:
+
+```tsx
+<Checkbox
+  id="checked-checkbox"
+  text="Pre-checked option"
+  initialState={true}
+  onChange={handleChange}
+/>
+```
+
+### External State Control
+
+Control the checkbox state externally using the `checked` prop:
+
+```tsx
+import { useState } from 'react';
+
+function ControlledCheckbox() {
+  const [isChecked, setIsChecked] = useState(false);
+
+  return (
+    <Checkbox
+      id="controlled-checkbox"
+      text="Controlled checkbox"
+      checked={isChecked}
+      onChange={setIsChecked}
+    />
+  );
+}
+```
+
+### Indeterminate State
+
+Use the indeterminate state to represent a partially selected state, commonly used in tree structures or when controlling multiple child checkboxes:
+
+```tsx
+<Checkbox
+  id="indeterminate-checkbox"
+  text="Select all items"
+  isIndeterminate={true}
+  onChange={handleChange}
+/>
+```
+
+### Disabled State
+
+Disable user interaction with the checkbox. The checked and unchecked
+positions stay visually distinct: a disabled *unchecked* box goes flat
+`greyFocused40`, while a disabled *checked* (or indeterminate) box keeps the
+variant's fill colour, muted by a white overlay, so a locked-on option still
+reads as selected. The tick itself stays fully opaque.
+
+```tsx
+// Disabled unchecked
+<Checkbox
+  id="disabled-unchecked"
+  text="Disabled option"
+  disabled={true}
+  onChange={handleChange}
+/>
+
+// Disabled checked
+<Checkbox
+  id="disabled-checked"
+  text="Disabled checked option"
+  initialState={true}
+  disabled={true}
+  onChange={handleChange}
+/>
+```
+
+### Without Label
+
+Checkboxes can be used without text labels when the context is clear:
+
+```tsx
+<Checkbox id="no-label-checkbox" onChange={handleChange} />
+```
+
+### Color Variants
+
+The `color` prop controls the checked-state and focus colors. Colors are
+sourced from `theme.palette` for consistency with the rest of the design system.
+
+| Value | Palette key | Resting border | Checked fill | Hover fill | Disabled (unchecked) | Disabled (checked) |
+|-------|-------------|----------------|--------------|------------|----------------------|--------------------|
+| `primary` *(default)* | `palette.primary` | `primary.light` | `primary.main` | `primary.dark` | `greyFocused40` | `primary.main`, muted |
+| `success` | `palette.success` | `success.main` | `success.main` | `success.dark` | `greyFocused40` | `success.main`, muted |
+| `custom` | — | none (bring your own) | — | — | — | — |
+
+```tsx
+// Default — primary (blue)
+<Checkbox
+  id="primary-checkbox"
+  text="Primary option"
+  onChange={handleChange}
+/>
+
+// Success (green)
+<Checkbox
+  id="success-checkbox"
+  text="Success option"
+  color="success"
+  onChange={handleChange}
+/>
+
+// Custom — apply styles via className or css prop
+<Checkbox
+  id="custom-checkbox"
+  text="Custom styled"
+  color="custom"
+  css={{ /* your styles */ }}
+  onChange={handleChange}
+/>
+```
+
+### Form Integration
+
+Integrate with forms using React Hook Form:
+
+```tsx
+import { useForm } from 'react-hook-form';
+
+function FormCheckbox() {
+  const { register, handleSubmit } = useForm();
+
+  const onSubmit = (data) => {
+    console.log(data);
+  };
+
+  return (
+    <form onSubmit={handleSubmit(onSubmit)}>
+      <Checkbox
+        id="form-checkbox"
+        text="Subscribe to newsletter"
+        name="newsletter"
+        isRequired={true}
+        register={register('newsletter')}
+      />
+      <button type="submit">Submit</button>
+    </form>
+  );
+}
+```
+
+<Canvas />
+<Controls />
+
+<Stories includePrimary={false} />

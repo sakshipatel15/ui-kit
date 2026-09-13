@@ -1,0 +1,34 @@
+{
+  "extends": "../../tsconfig.base.json",
+  "compilerOptions": {
+    "jsxImportSource": "@emotion/react",
+    "moduleResolution": "bundler",
+    "emitDeclarationOnly": false,
+    "typeRoots": [
+      "./src/types",
+      "./node_modules/@types",
+      "../../node_modules/@types"
+    ],
+    "paths": {
+      "@icons": ["./src/icons"],
+      "@contexts": ["./src/contexts"],
+      "@": ["./src/projects"],
+      "@/*": ["./src/projects/*"],
+      "@fintech": ["./src/projects/fintech"],
+      "@fintech/*": ["./src/projects/fintech/*"],
+      "@fitness": ["./src/projects/fitness"],
+      "@fitness/*": ["./src/projects/fitness/*"],
+      "@hr": ["./src/projects/hr"],
+      "@hr/*": ["./src/projects/hr/*"]
+    }
+  },
+  "include": [
+    "src/**/*",
+    "./jest-setup.ts",
+    "./customTest.tsx",
+    "./src/types/svg.d.ts",
+    ".storybook/**/*.ts",
+    ".storybook/**/*.tsx"
+  ],
+  "exclude": ["dist/**/*"]
+}

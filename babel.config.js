@@ -1,0 +1,22 @@
+module.exports = {
+  presets: [
+    [
+      '@babel/preset-env',
+      {
+        targets: {
+          node: 'current',
+        },
+        bugfixes: false,
+      },
+    ],
+    [
+      '@babel/preset-react',
+      {
+        runtime: 'automatic',
+        importSource: '@emotion/react',
+      },
+    ],
+    '@babel/preset-typescript',
+  ],
+  plugins: ['@emotion', '@babel/plugin-transform-runtime'],
+};

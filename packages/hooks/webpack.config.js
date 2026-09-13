@@ -1,0 +1,17 @@
+const path = require('path');
+const createConfig = require('../../webpack.packages.base');
+
+module.exports = () => {
+  const currentConfig = createConfig({
+    libraryName: 'SSAHooks',
+    outputPath: path.resolve(__dirname, 'dist'),
+    dualOutput: true,
+    alias: {
+      '@src': path.resolve(__dirname, './src'),
+      '@hooks': path.resolve(__dirname, './src/hooks'),
+    },
+    tsConfigPath: './tsconfig.json',
+  });
+
+  return currentConfig;
+};

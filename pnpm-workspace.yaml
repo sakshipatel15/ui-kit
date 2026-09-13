@@ -1,0 +1,9 @@
+packages:
+  - 'packages/core'
+  - 'packages/utils'
+  - 'packages/hooks'
+  - 'packages/widgets'
+  - 'packages/templates'
+  - 'packages/infra-dash'
+  - 'examples/fitness-dashboard'
+  - 'apps/docs'

@@ -1,0 +1,35 @@
+import { MustInclude } from '@ssa-ui-kit/utils';
+import { WidgetCardProps } from '@components/WidgetCard';
+import Wrapper from '@components/Wrapper';
+
+export type BarGaugeChartFeature = 'header' | 'fullscreenMode';
+
+export type GaugeBarThreshold = { value: number; color: string };
+
+export type GaugeBarValueFormatter = (
+  value: number,
+  color: string,
+) => React.ReactNode;
+
+export interface BarGaugeChartHeaderProps<T extends string[]> {
+  features: MustInclude<T, 'fullscreenMode'>;
+}
+
+export interface GaugeBarProps {
+  value: number;
+  valueFormatter?: GaugeBarValueFormatter;
+  title?: React.ReactNode;
+  thresholds?: GaugeBarThreshold[];
+  gap?: number;
+  brickWidth?: number;
+  min?: number;
+  max?: number;
+}
+
+export interface BarGaugeChartProps {
+  title?: React.ReactNode;
+  widgetCardProps?: WidgetCardProps;
+  bars?: GaugeBarProps[];
+  features?: BarGaugeChartFeature[];
+  wrapperProps?: React.ComponentProps<typeof Wrapper>;
+}

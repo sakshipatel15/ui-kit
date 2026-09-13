@@ -1,0 +1,46 @@
+import { useTheme } from '@emotion/react';
+import Avatar from '@components/Avatar';
+import { AvatarSizes } from '@components/Avatar/types';
+import Wrapper from '@components/Wrapper';
+import { ImageItemProps } from './types';
+
+export const ImageItem = ({
+  children,
+  image,
+  avatarSize = AvatarSizes.small,
+  avatarBorder = false,
+  link = '',
+  openLinkInNewTab = false,
+  className,
+}: ImageItemProps) => {
+  const theme = useTheme();
+  const additionalProps = link
+    ? {
+        href: link,
+        target: openLinkInNewTab ? '_blank' : undefined,
+      }
+    : {};
+
+  return (
+    <Wrapper
+      css={{ gap: 8, textDecoration: 'none' }}
+      as={link ? 'a' : 'div'}
+      className={className}
+      data-testid="image-item"
+      {...additionalProps}>
+      <Avatar size={avatarSize} image={image} border={avatarBorder} />
+      <span
+        css={{
+          color: theme.colors.greyDarker,
+          fontSize: 14,
+          fontWeight: 500,
+          cursor: link ? 'pointer' : 'default',
+          '&:hover': {
+            color: link ? theme.colors.blue : theme.colors.greyDarker,
+          },
+        }}>
+        {children}
+      </span>
+    </Wrapper>
+  );
+};

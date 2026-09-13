@@ -1,0 +1,163 @@
+import { css, Theme } from '@emotion/react';
+import styled from '@emotion/styled';
+import { CommonProps } from '@global-types/emotion';
+
+export const ChipBase = styled.div<CommonProps>`
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  font-family: Manrope, sans-serif;
+  font-weight: 500;
+  border-radius: 24px;
+  white-space: nowrap;
+  user-select: none;
+  outline: none;
+`;
+
+export const small = css`
+  height: 24px;
+  padding: 2px 8px;
+  font-size: 12px;
+  line-height: 16px;
+`;
+
+export const medium = css`
+  height: 32px;
+  padding: 4px 12px;
+  font-size: 14px;
+  line-height: 20px;
+`;
+
+export const large = css`
+  height: 40px;
+  padding: 6px 16px;
+  font-size: 16px;
+  line-height: 24px;
+`;
+
+const baseFilled = (theme: Theme) => css`
+  background-color: ${theme.colors.greyLighter};
+  border: none;
+`;
+
+const baseOutlined = (theme: Theme) => css`
+  background-color: color-mix(in srgb, ${theme.colors.grey} 8%, transparent);
+  border: 1px solid ${theme.colors.grey};
+`;
+
+export const filled = (theme: Theme) => css`
+  ${baseFilled(theme)};
+  color: ${theme.colors.greyDarker};
+`;
+
+export const filledDisabled = (theme: Theme) => css`
+  ${baseFilled(theme)};
+  color: ${theme.colors.greyDisabled};
+  opacity: 0.6;
+`;
+
+export const outlined = (theme: Theme) => css`
+  ${baseOutlined(theme)};
+  color: ${theme.colors.greyDarker};
+`;
+
+export const outlinedDisabled = (theme: Theme) => css`
+  background-color: color-mix(in srgb, ${theme.colors.grey} 24%, transparent);
+  border: 1px solid ${theme.colors.grey};
+  color: ${theme.colors.greyDisabled};
+  opacity: 0.6;
+`;
+
+/** Hover/active bg opacity for default (grey) outlined clickable chip */
+export const clickableOutlinedDefault = (theme: Theme) => css`
+  transition: background-color 0.2s ease;
+
+  &:hover {
+    background-color: color-mix(in srgb, ${theme.colors.grey} 24%, transparent);
+  }
+
+  &:active {
+    background-color: color-mix(in srgb, ${theme.colors.grey} 40%, transparent);
+  }
+`;
+
+export const clickable = css`
+  cursor: pointer;
+  transition: all 0.2s ease;
+
+  &:hover {
+    opacity: 0.8;
+  }
+
+  &:active {
+    opacity: 0.7;
+  }
+`;
+
+/** cursor + transition only; hover/active handled by variant (e.g. outlined bg opacity) */
+export const clickableBase = css`
+  cursor: pointer;
+  transition:
+    background-color 0.2s ease,
+    opacity 0.2s ease;
+`;
+
+export const clickableDisabled = css`
+  cursor: not-allowed;
+`;
+
+export const IconWrapper = styled.span`
+  display: flex;
+  align-items: center;
+  margin-right: 7px;
+  & svg path {
+    stroke-width: 1;
+  }
+`;
+
+export const AvatarWrapper = styled.span`
+  display: flex;
+  align-items: center;
+  margin-right: 7px;
+`;
+
+export const TitleWrapper = styled.span`
+  color: inherit;
+  font-weight: 700;
+  margin-right: 4px;
+`;
+
+export const LabelWrapper = styled.span`
+  color: inherit;
+`;
+
+export const DeleteIconButton = styled.button`
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-left: 7px;
+  padding: 0;
+  padding-top: 1px;
+  cursor: pointer;
+  border: none;
+  background: none;
+  color: inherit;
+  transition: opacity 0.2s ease;
+
+  & svg path {
+    stroke-width: 1;
+  }
+
+  &:hover {
+    opacity: 0.7;
+  }
+
+  &:active {
+    opacity: 0.5;
+  }
+
+  &:disabled {
+    cursor: not-allowed;
+    pointer-events: none;
+  }
+`;

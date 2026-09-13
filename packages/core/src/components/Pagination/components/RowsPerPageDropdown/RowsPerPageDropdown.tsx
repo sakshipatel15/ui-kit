@@ -1,0 +1,123 @@
+import { useTheme } from '@emotion/react';
+import DropdownOption from '@components/DropdownOption/DropdownOption';
+import Typography from '@components/Typography/Typography';
+import Wrapper from '@components/Wrapper/Wrapper';
+import Dropdown from '@components/Dropdown/Dropdown';
+import { usePaginationContext } from '@components/Pagination/PaginationContext';
+import { RowsPerPageDropdownProps } from './types';
+import { ROWS_PER_PAGE_LIST } from '../../constants';
+
+/**
+ * RowsPerPageDropdown - Dropdown component for selecting rows per page
+ *
+ * A dropdown component that allows users to select the number of rows
+ * displayed per page in paginated data. Used within Pagination component
+ * when isRowPerPageVisible is true. Requires PaginationContextProvider
+ * to access and update the perPage state.
+ *
+ * @category Components
+ * @subcategory Navigation
+ *
+ * @example
+ * ```tsx
+ * <PaginationContextProvider selectedPage={1} defaultPerPage={25}>
+ *   <Pagination
+ *     pagesCount={20}
+ *     isRowPerPageVisible={true}
+ *     rowPerPageProps={{
+ *       selectedItem: 25,
+ *       rowsPerPageText: "Items per page",
+ *       rowsPerPageList: [
+ *         { id: 1, value: 10 },
+ *         { id: 2, value: 25 },
+ *         { id: 3, value: 50 },
+ *       ],
+ *     }}
+ *   />
+ * </PaginationContextProvider>
+ * ```
+ *
+ * @see {@link Pagination} - Parent component that uses this component
+ * @see {@link PaginationContextProvider} - Required context provider
+ * @see {@link Dropdown} - Base dropdown component used internally
+ *
+ * @requires PaginationContextProvider - Must be used within PaginationContextProvider
+ *
+ * @accessibility
+ * - ARIA attributes via Dropdown component
+ * - Keyboard navigation support
+ * - Screen reader friendly
+ */
+export const RowsPerPageDropdown = ({
+  selectedItem,
+  rowsPerPageList = ROWS_PER_PAGE_LIST,
+  rowsPerPageText = 'Rows per page',
+  dropdownPosition,
+  ...rest
+}: RowsPerPageDropdownProps) => {
+  const theme = useTheme();
+  const { perPage, setPerPage } = usePaginationContext();
+
+  const selectedItemForDropdown =
+    rowsPerPageList.find(({ value }) => value === (selectedItem ?? perPage)) ||
+    rowsPerPageList[0];
+
+  const onChange: Parameters<typeof Dropdown>[0]['onChange'] = ({ value }) => {
+    setPerPage(value as number);
+  };
+
+  return (
+    <Wrapper
+      css={{
+        width: 'auto',
+        gap: 8,
+        ul: { width: 'auto' },
+        li: { height: 40, padding: '8px 12px' },
+        'li[aria-selected="true"]': { background: theme.colors.blue12 },
+      }}>
+      <Typography
+        variant="subtitle"
+        css={{
+          fontSize: 14,
+          lineHeight: 1,
+          textWrap: 'nowrap',
+          color: theme.colors.greyDarker,
+        }}>
+        {rowsPerPageText}:
+      </Typography>
+      <Dropdown
+        selectedItem={selectedItemForDropdown}
+        onChange={onChange}
+        dropdownProps={{
+          toggleButton: {
+            css: {
+              border: 'none',
+              background: 'transparent',
+              borderRadius: 6,
+              color: theme.colors.greyDarker,
+              gap: 4,
+              padding: 3,
+              '&:focus': {
+                color: theme.colors.greyDarker,
+                background: 'transparent !important',
+                '&::before': {
+                  display: 'none',
+                },
+              },
+              '& svg path': {
+                stroke: theme.colors.greyDarker,
+              },
+            },
+          },
+          dropdownPosition,
+        }}
+        {...rest}>
+        {rowsPerPageList.map((item) => (
+          <DropdownOption key={item.id} value={item.value}>
+            {item.value}
+          </DropdownOption>
+        ))}
+      </Dropdown>
+    </Wrapper>
+  );
+};

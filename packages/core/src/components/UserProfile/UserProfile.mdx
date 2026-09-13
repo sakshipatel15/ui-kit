@@ -1,0 +1,37 @@
+import { Meta, Canvas, Controls, Stories } from '@storybook/addon-docs/blocks';
+import * as UserProfileStories from './UserProfile.stories';
+
+<Meta of={UserProfileStories} />
+
+# UserProfile
+
+Popover **user menu** (Storybook: **Widgets / UserProfile**): shows **name**, **email**, optional **additionalInfo** rows and **customContent**, plus a primary **logout** action. Any **trigger** (string, **Icon**, **Avatar**, **Button**, etc.) opens the panel (**Popover**, **bottom-end**). Use **`onClick`** for sign-out or session teardown.
+
+## Default Usage
+
+The UserProfile component provides a popover-based user profile dropdown that displays user information and a logout button.
+
+```tsx
+import { UserProfile, Icon } from '@ssa-ui-kit/core';
+
+const App = () => {
+  const handleLogout = () => {
+    console.log('User logged out');
+    // Handle logout logic here
+  };
+
+  return (
+    <UserProfile
+      name="John Doe"
+      email="john.doe@example.com"
+      trigger={<Icon name="user" size={32} />}
+      onClick={handleLogout}
+    />
+  );
+};
+```
+
+<Canvas />
+<Controls />
+
+<Stories includePrimary={false} />
