@@ -1,27 +1,7 @@
 {
   "projects": {
-    "default": "admin-themes"
+    "default": "sakshi-ui-kit"
   },
-  "targets": {
-    "admin-themes": {
-      "hosting": {
-        "fitness-dashboard": [
-          "admin-themes"
-        ],
-        "core": [
-          "ui-kit-core"
-        ],
-        "templates": [
-          "ui-kit-template"
-        ],
-        "fitness": [
-          "ui-kit-fitness"
-        ],
-        "infra-dash": [
-          "ui-kit-infra-dash"
-        ]
-      }
-    }
-  },
+  "targets": {},
   "etags": {}
 }

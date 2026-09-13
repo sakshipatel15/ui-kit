@@ -13,7 +13,7 @@
   },
   "private": false,
   "sideEffects": false,
-  "author": "SSA Group",
+  "author": "Sakshi Patel <sakshipatel150905@gmail.com>",
   "license": "MIT",
   "description": "SSA UI Kit",
   "scripts": {

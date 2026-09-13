@@ -3,7 +3,7 @@
   "version": "0.0.0",
   "main": "src/index.tsx",
   "private": true,
-  "author": "SSA Group",
+  "author": "Sakshi Patel <sakshipatel150905@gmail.com>",
   "license": "MIT",
   "description": "Fitness Dashboard based on SSA UI Kit",
   "keywords": [

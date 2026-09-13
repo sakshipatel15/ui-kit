@@ -1,15 +1,9 @@
-# Sakshi UI Kit
+# Portfolio summary
 
-React + TypeScript UI component kit customized for my open-source portfolio.
+**Sakshi UI Kit** is my customized open-source React + TypeScript UI kit.
 
-## Stack
-- React
-- TypeScript
-- Emotion
-- Storybook
+- Focus: reusable, accessible UI components
+- Based on SSA UI Kit (MIT) with clear attribution
+- Public repo: https://github.com/sakshipatel15/ui-kit
 
-## Origin
-Based on SSA UI Kit (MIT): https://github.com/ssagroup/ui-kit
-
-## Author
-Sakshi Patel — https://github.com/sakshipatel15
+Use this as an Open Source card on my portfolio.

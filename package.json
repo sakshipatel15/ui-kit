@@ -2,7 +2,7 @@
   "name": "@sakshipatel15/ui-kit",
   "version": "3.21.3",
   "private": true,
-  "description": "Accessible React + TypeScript UI kit customized by Sakshi Patel (based on SSA UI Kit)",
+  "description": "Sakshi UI Kit \u2014 accessible React + TypeScript components (customized open-source)",
   "main": "index.js",
   "author": "Sakshi Patel <sakshipatel150905@gmail.com>",
   "license": "MIT",

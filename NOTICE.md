@@ -1,16 +1,19 @@
 # Notice
 
-This repository is a customized fork/derivative of:
+This repository is a customized derivative of:
 
 **SSA UI Kit**  
-Original project: https://github.com/ssagroup/ui-kit  
-Original author/organization: SSA Group  
+https://github.com/ssagroup/ui-kit  
+Original organization: SSA Group  
 License: MIT
 
-## Modifications by Sakshi Patel (2026)
+## Customized by
+Sakshi Patel (2026)  
+https://github.com/sakshipatel15/ui-kit
 
-- Rebranded project metadata for personal open-source portfolio use
-- Updated README with clear attribution and customization notes
-- Prepared repository for public GitHub under sakshipatel15
+## Changes
+- Project branding and documentation updated for personal open-source portfolio
+- Package authors/metadata updated
+- Public GitHub repository prepared under sakshipatel15
 
-Original copyright and MIT license terms remain in `LICENSE`.
+The original MIT license terms remain in `LICENSE`.
