@@ -71,7 +71,10 @@
     "release": "tsx ./scripts/release",
     "prepare": "husky",
     "clean:all": "pnpm -r --parallel clean",
-    "build:fresh": "pnpm clean:all && pnpm build:all"
+    "build:fresh": "pnpm clean:all && pnpm build:all",
+    "setup": "pnpm install && pnpm build:utils && pnpm build:hooks",
+    "demo": "pnpm setup && pnpm --filter ./packages/core sb:dev",
+    "sb:core:usable": "pnpm --filter ./packages/core sb:dev"
   },
   "keywords": [
     "react",

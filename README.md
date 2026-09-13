@@ -36,13 +36,28 @@ See `NOTICE.md` and `LICENSE` for full license + attribution details.
 GitHub: https://github.com/sakshipatel15  
 Email: sakshipatel150905@gmail.com
 
-## Getting started
+## Getting started (usable demo)
+
 ```bash
-pnpm install
-pnpm build:core
+# one-time setup (install + build required packages)
+pnpm setup
+
+# run Storybook UI preview
+pnpm --filter ./packages/core sb:dev
 ```
 
-> Large monorepo. Start with `packages/core` if you only need the main UI components.
+Then open: **http://localhost:6006/**
+
+### Important
+This is a monorepo. You must build `utils` and `hooks` before Storybook works:
+
+```bash
+pnpm build:utils
+pnpm build:hooks
+```
+
+If Storybook was already running, restart it after building.
+
 
 ## License
 MIT — original copyright retained for upstream SSA UI Kit; modifications © 2026 Sakshi Patel.

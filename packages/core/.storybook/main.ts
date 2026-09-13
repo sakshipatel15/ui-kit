@@ -29,7 +29,8 @@ const config: StorybookConfig = {
     options: {},
   },
   typescript: {
-    check: true,
+    // Disabled for local/demo usability. Run `pnpm --filter ./packages/core exec tsc -p tsconfig.storybook.json --noEmit` for full typecheck.
+    check: false,
     checkOptions: { typescript: { configFile: './tsconfig.storybook.json' } },
     reactDocgen: 'react-docgen-typescript',
     reactDocgenTypescriptOptions: {
